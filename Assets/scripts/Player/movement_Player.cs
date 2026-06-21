@@ -1,26 +1,48 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-public class movement : MonoBehaviour
-{
-   
 
-    [SerializeField] private float movespeed = 5f;
+public class Movement : MonoBehaviour
+{
+    [Header("References")]
+    public Transform Aim;
+
+    [Header("Movement")]
+    [SerializeField] private float moveSpeed = 5f;
 
     private Rigidbody2D rb;
 
-    private Vector2 move_input;
-    void Start()
+    private Vector2 moveInput;
+    private Vector2 lastDirection = Vector2.down;
+
+    private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void FixedUpdate()
     {
-        rb.linearVelocity= movespeed*move_input;
+        rb.linearVelocity = moveInput * moveSpeed;
     }
+
+    private void Update()
+    {
+        if (moveInput.sqrMagnitude > 0.01f)
+        {
+            lastDirection = moveInput.normalized;
+        }
+
+        float angle =
+            Mathf.Atan2(
+                lastDirection.y,
+                lastDirection.x
+            ) * Mathf.Rad2Deg;
+
+        Aim.rotation =
+            Quaternion.Euler(0, 0, angle + 90);
+    }
+
     public void Move(InputAction.CallbackContext context)
     {
-        move_input = context.ReadValue<Vector2>();
+        moveInput = context.ReadValue<Vector2>();
     }
 }

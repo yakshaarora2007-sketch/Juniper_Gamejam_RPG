@@ -16,6 +16,7 @@ namespace EasyUI.PickerWheelUI {
       [SerializeField] private Transform PickerWheelTransform ;
       [SerializeField] private Transform wheelCircle ;
       [SerializeField] private GameObject wheelPiecePrefab ;
+      [SerializeField] private GameObject sectorPrefab;
       [SerializeField] private Transform wheelPiecesParent ;
 
       [Space]
@@ -82,6 +83,11 @@ namespace EasyUI.PickerWheelUI {
       }
 
       private void Generate () {
+         foreach (Transform child in wheelPiecesParent)
+{
+    if (child.name.Contains("Sector"))
+        Destroy(child.gameObject);
+}
          wheelPiecePrefab = InstantiatePiece () ;
 
          RectTransform rt = wheelPiecePrefab.transform.GetChild (0).GetComponent <RectTransform> () ;
@@ -90,8 +96,10 @@ namespace EasyUI.PickerWheelUI {
          rt.SetSizeWithCurrentAnchors (RectTransform.Axis.Horizontal, pieceWidth) ;
          rt.SetSizeWithCurrentAnchors (RectTransform.Axis.Vertical, pieceHeight) ;
 
-         for (int i = 0; i < wheelPieces.Length; i++)
+         for (int i = 0; i < wheelPieces.Length; i++){
             DrawPiece (i) ;
+            CreateSector(i);
+         }
 
          Destroy (wheelPiecePrefab) ;
       }
@@ -114,8 +122,34 @@ namespace EasyUI.PickerWheelUI {
       private GameObject InstantiatePiece () {
          return Instantiate (wheelPiecePrefab, wheelPiecesParent.position, Quaternion.identity, wheelPiecesParent) ;
       }
+private void CreateSector(int index)
+{
+    WheelPiece piece = wheelPieces[index];
 
+    GameObject sector = Instantiate(
+        sectorPrefab,
+        wheelPiecesParent);
 
+    sector.transform.SetAsFirstSibling();
+
+    Image img = sector.GetComponent<Image>();
+
+    img.color = piece.PieceColor;
+
+    // Tiny reduction prevents overlap artifacts
+    img.fillAmount = (1f / wheelPieces.Length) - 0.001f;
+
+    RectTransform rt = sector.GetComponent<RectTransform>();
+
+    rt.localPosition = Vector3.zero;
+    rt.localScale = Vector3.one;
+
+    // IMPORTANT
+    rt.localRotation = Quaternion.Euler(
+        0f,
+        0f,
+        -(pieceAngle * index) - (pieceAngle / 2f));
+}
       public void Spin () {
          if (!_isSpinning) {
             _isSpinning = true ;

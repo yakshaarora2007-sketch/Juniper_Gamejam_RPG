@@ -60,7 +60,11 @@ public class PlayerCombat : MonoBehaviour
                 attackPoint.position,
                 attackRange,
                 enemyLayer);
-
+        Debug.DrawRay(
+    attackPoint.position,
+    attackPoint.up * attackRange,
+    Color.green,
+    1f);
         Debug.Log("Enemies Found: " + enemies.Length);
 
         foreach (Collider2D enemy in enemies)
@@ -71,23 +75,19 @@ public class PlayerCombat : MonoBehaviour
 
             float angle =
                 Vector2.Angle(
-                    -attackPoint.up,
-                    directionToEnemy);
+            -attackPoint.up,
+             directionToEnemy);
 
             Debug.Log("Angle = " + angle);
 
-            if (angle <= attackAngle * 0.5f)
-            {
-                Combat_enemy enemyHealth =
-                    enemy.GetComponent<Combat_enemy>();
+           Combat_enemy enemyHealth =
+    enemy.GetComponent<Combat_enemy>();
 
-                if (enemyHealth != null)
-                {
-                    enemyHealth.TakeDamage(swordDamage);
-                }
-
-                Debug.Log("Sword Hit: " + enemy.name);
-            }
+if (enemyHealth != null)
+{
+    enemyHealth.TakeDamage(swordDamage);
+    Debug.Log("DAMAGE APPLIED");
+}
         }
     }
 
@@ -111,7 +111,7 @@ public class PlayerCombat : MonoBehaviour
             arrow.GetComponent<Rigidbody2D>();
 
         rb.linearVelocity =
-            -firePoint.up * arrowSpeed;
+            firePoint.up * arrowSpeed;
     }
 
     private IEnumerator SwingSword()
@@ -177,7 +177,6 @@ public class PlayerCombat : MonoBehaviour
     private void Die()
     {
         Debug.Log("Player Died");
-
         Destroy(gameObject);
     }
 

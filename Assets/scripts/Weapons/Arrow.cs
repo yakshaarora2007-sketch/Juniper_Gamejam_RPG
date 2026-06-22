@@ -14,7 +14,14 @@ public class Arrow : MonoBehaviour
     {
         Debug.Log("Arrow hit " + other.name);
 
-         other.GetComponent<Combat_enemy>().TakeDamage(arrowDamage);
+        Combat_enemy enemy =
+            other.GetComponent<Combat_enemy>();
+
+        if (enemy != null)
+        {
+            enemy.TakeDamage(arrowDamage);
+        }
+
         Destroy(gameObject);
     }
 }

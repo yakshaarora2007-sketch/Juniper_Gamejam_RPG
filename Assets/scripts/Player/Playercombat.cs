@@ -111,7 +111,7 @@ if (enemyHealth != null)
             arrow.GetComponent<Rigidbody2D>();
 
         rb.linearVelocity =
-            firePoint.up * arrowSpeed;
+            -firePoint.up * arrowSpeed;
     }
 
     private IEnumerator SwingSword()

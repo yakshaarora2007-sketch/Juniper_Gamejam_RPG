@@ -5,14 +5,12 @@ using System.Collections;
 public class PlayerCombat : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private Transform attackPoint;
+    [SerializeField] private Transform hammerPoint;
     [SerializeField] private Transform firePoint;
     [SerializeField] private Transform sword;
 
-    [Header("Sword")]
-    [SerializeField] private float attackRange = 2f;
-    [SerializeField] private float attackAngle = 120f;
-    [SerializeField] private float swordDamage = 10f;
+    [Header("Hammer")]
+    [SerializeField] private float hammerRange = 0.5f;
     [SerializeField] private LayerMask enemyLayer;
 
     [Header("Sword Swing")]
@@ -31,10 +29,20 @@ public class PlayerCombat : MonoBehaviour
 
     private bool isSwinging;
     private float nextArrowTime;
+
     private Quaternion swordDefaultRotation;
+
+    private SwordHitbox swordHitbox;
+    private WeaponManager weaponManager;
 
     private void Start()
     {
+        weaponManager =
+            GetComponentInChildren<WeaponManager>();
+
+        swordHitbox =
+            sword.GetComponent<SwordHitbox>();
+
         health = maxhealth;
 
         if (healthbar != null)
@@ -44,62 +52,88 @@ public class PlayerCombat : MonoBehaviour
 
         if (sword != null)
         {
-            swordDefaultRotation = sword.localRotation;
+            swordDefaultRotation =
+                sword.localRotation;
         }
     }
 
-    public void SwordAttack(InputAction.CallbackContext context)
-    {
-        if (!context.performed || isSwinging)
-            return;
-
-        StartCoroutine(SwingSword());
-
-        Collider2D[] enemies =
-            Physics2D.OverlapCircleAll(
-                attackPoint.position,
-                attackRange,
-                enemyLayer);
-        Debug.DrawRay(
-    attackPoint.position,
-    attackPoint.up * attackRange,
-    Color.green,
-    1f);
-        Debug.Log("Enemies Found: " + enemies.Length);
-
-        foreach (Collider2D enemy in enemies)
-        {
-            Vector2 directionToEnemy =
-                (enemy.transform.position -
-                 attackPoint.position).normalized;
-
-            float angle =
-                Vector2.Angle(
-            -attackPoint.up,
-             directionToEnemy);
-
-            Debug.Log("Angle = " + angle);
-
-           Combat_enemy enemyHealth =
-    enemy.GetComponent<Combat_enemy>();
-
-if (enemyHealth != null)
-{
-    enemyHealth.TakeDamage(swordDamage);
-    Debug.Log("DAMAGE APPLIED");
-}
-        }
-    }
-
-    public void ShootArrow(InputAction.CallbackContext context)
+    public void MeleeAttack(InputAction.CallbackContext context)
     {
         if (!context.performed)
             return;
 
+        Debug.Log(
+            "Current Weapon = " +
+            weaponManager.currentMeleeWeapon);
+
+        switch (weaponManager.currentMeleeWeapon)
+        {
+            case WeaponID.Sword:
+                SwordAttack();
+                break;
+
+            case WeaponID.Hammer:
+                HammerAttack();
+                break;
+
+            case WeaponID.Trident:
+                TridentAttack();
+                break;
+
+            case WeaponID.Spear:
+                SpearSlash();
+                break;
+
+            case WeaponID.ReturningShield:
+                ShieldBash();
+                break;
+        }
+    }
+
+    public void RangedAttack(InputAction.CallbackContext context)
+    {
+        if (!context.performed)
+            return;
+
+        switch (weaponManager.currentRangedWeapon)
+        {
+            case WeaponID.Bow:
+                BowShoot();
+                break;
+
+            case WeaponID.Gun:
+                GunShoot();
+                break;
+
+            case WeaponID.Shuriken:
+                ShurikenThrow();
+                break;
+
+            case WeaponID.Spear:
+                ThrowSpear();
+                break;
+
+            case WeaponID.ReturningShield:
+                ThrowShield();
+                break;
+        }
+    }
+
+    private void SwordAttack()
+    {
+        if (isSwinging)
+            return;
+
+       StartCoroutine(SwordDamageWindow());
+    }
+
+    private void BowShoot()
+    {
         if (Time.time < nextArrowTime)
             return;
 
-        nextArrowTime = Time.time + arrowWindupTime;
+        nextArrowTime =
+            Time.time + arrowWindupTime;
 
         GameObject arrow =
             Instantiate(
@@ -114,46 +148,47 @@ if (enemyHealth != null)
             -firePoint.up * arrowSpeed;
     }
 
-    private IEnumerator SwingSword()
+    private void HammerAttack()
     {
-        if (sword == null)
-            yield break;
-
-        if (swingDuration <= 0f)
-            yield break;
-
-        isSwinging = true;
-
-        float timer = 0f;
-
-        Quaternion startRotation =
-            swordDefaultRotation *
-            Quaternion.Euler(0, 0, -swingAngle);
-
-        Quaternion endRotation =
-            swordDefaultRotation *
-            Quaternion.Euler(0, 0, swingAngle);
-
-        while (timer < swingDuration)
-        {
-            timer += Time.deltaTime;
-
-            float t = timer / swingDuration;
-
-            sword.localRotation =
-                Quaternion.Lerp(
-                    startRotation,
-                    endRotation,
-                    t);
-
-            yield return null;
-        }
-
-        sword.localRotation = swordDefaultRotation;
-
-        isSwinging = false;
+        Debug.Log("Hammer Attack");
     }
 
+    private void TridentAttack()
+    {
+        Debug.Log("Trident Attack");
+    }
+
+    private void SpearSlash()
+    {
+        Debug.Log("Spear Slash");
+    }
+
+    private void ShieldBash()
+    {
+        Debug.Log("Shield Bash");
+    }
+
+    private void GunShoot()
+    {
+        Debug.Log("Gun Shoot");
+    }
+
+    private void ShurikenThrow()
+    {
+        Debug.Log("Shuriken Throw");
+    }
+
+    private void ThrowSpear()
+    {
+        Debug.Log("Throw Spear");
+    }
+
+    private void ThrowShield()
+    {
+        Debug.Log("Throw Shield");
+    }
+
+    
     public void TakeDamage(float damage)
     {
         health -= damage;
@@ -166,8 +201,6 @@ if (enemyHealth != null)
             healthbar.SetHealth(health);
         }
 
-        Debug.Log("Player HP: " + health);
-
         if (health <= 0)
         {
             Die();
@@ -176,37 +209,47 @@ if (enemyHealth != null)
 
     private void Die()
     {
-        Debug.Log("Player Died");
         Destroy(gameObject);
     }
 
     private void OnDrawGizmosSelected()
     {
-        if (attackPoint == null)
+        if (hammerPoint == null)
             return;
 
         Gizmos.color = Color.red;
 
         Gizmos.DrawWireSphere(
-            attackPoint.position,
-            attackRange);
-
-        Vector3 leftBoundary =
-            Quaternion.Euler(0, 0, attackAngle * 0.5f) *
-            attackPoint.up *
-            attackRange;
-
-        Vector3 rightBoundary =
-            Quaternion.Euler(0, 0, -attackAngle * 0.5f) *
-            attackPoint.up *
-            attackRange;
-
-        Gizmos.DrawLine(
-            attackPoint.position,
-            attackPoint.position + leftBoundary);
-
-        Gizmos.DrawLine(
-            attackPoint.position,
-            attackPoint.position + rightBoundary);
+            hammerPoint.position,
+            hammerRange);
     }
+
+    private void Update()
+    {
+        if (Keyboard.current.digit1Key.wasPressedThisFrame)
+        {
+            weaponManager.EquipMeleeWeapon(
+                WeaponID.Sword);
+        }
+
+        if (Keyboard.current.digit2Key.wasPressedThisFrame)
+        {
+            weaponManager.EquipMeleeWeapon(
+                WeaponID.Hammer);
+        }
+
+        if (Keyboard.current.digit3Key.wasPressedThisFrame)
+        {
+            weaponManager.EquipMeleeWeapon(
+                WeaponID.Trident);
+        }
+    }
+    private IEnumerator SwordDamageWindow()
+{
+    swordHitbox.EnableDamage();
+
+    yield return new WaitForSeconds(0.2f);
+
+    swordHitbox.DisableDamage();
+}
 }

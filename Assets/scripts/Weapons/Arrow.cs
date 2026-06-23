@@ -9,19 +9,23 @@ public class Arrow : MonoBehaviour
     {
         Destroy(gameObject, lifetime);
     }
+private void OnTriggerEnter2D(Collider2D other)
+{
+    Debug.Log("Arrow hit: " + other.name);
 
-    private void OnTriggerEnter2D(Collider2D other)
+    Combat_enemy enemy =
+        other.GetComponentInParent<Combat_enemy>();
+
+    if (enemy != null)
     {
-        Debug.Log("Arrow hit " + other.name);
-
-        Combat_enemy enemy =
-            other.GetComponent<Combat_enemy>();
-
-        if (enemy != null)
-        {
-            enemy.TakeDamage(arrowDamage);
-        }
-
-        Destroy(gameObject);
+        Debug.Log("Enemy Found");
+        enemy.TakeDamage(arrowDamage);
     }
+    else
+    {
+        Debug.Log("Enemy NOT Found");
+    }
+
+    Destroy(gameObject);
+}
 }

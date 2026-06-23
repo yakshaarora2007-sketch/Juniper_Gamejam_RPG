@@ -8,31 +8,29 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] private Transform hammerPoint;
     [SerializeField] private Transform firePoint;
     [SerializeField] private Transform sword;
+    private float nextAttackTime;
 
-    [Header("Hammer")]
-    [SerializeField] private float hammerRange = 0.5f;
+   [Header("Trident")]
+[SerializeField] private Transform tridentLeftPoint;
+[SerializeField] private Transform tridentCenterPoint;
+[SerializeField] private Transform tridentRightPoint;
+
+[Header("Projectiles")]
+[SerializeField] private GameObject arrowPrefab;
+[SerializeField] private GameObject bulletPrefab;
+[SerializeField] private GameObject shurikenPrefab;
+[SerializeField] private GameObject spearPrefab;
+[SerializeField] private GameObject shieldPrefab;
     [SerializeField] private LayerMask enemyLayer;
-
-    [Header("Sword Swing")]
-    [SerializeField] private float swingAngle = 75f;
-    [SerializeField] private float swingDuration = 0.12f;
-
-    [Header("Arrow")]
-    [SerializeField] private GameObject arrowPrefab;
-    [SerializeField] private float arrowSpeed = 10f;
-    [SerializeField] private float arrowWindupTime = 0.5f;
 
     [Header("Player Health")]
     public float health;
     public float maxhealth = 100f;
     public HealthBarscript_Player healthbar;
 
-    private bool isSwinging;
-    private float nextArrowTime;
-
-    private Quaternion swordDefaultRotation;
-
+private Coroutine reloadRoutine;
     private SwordHitbox swordHitbox;
+    private bool gunTriggerHeld;
     private WeaponManager weaponManager;
 
     private void Start()
@@ -50,11 +48,7 @@ public class PlayerCombat : MonoBehaviour
             healthbar.SetMaxHealth(maxhealth);
         }
 
-        if (sword != null)
-        {
-            swordDefaultRotation =
-                sword.localRotation;
-        }
+       
     }
 
     public void MeleeAttack(InputAction.CallbackContext context)
@@ -66,7 +60,7 @@ public class PlayerCombat : MonoBehaviour
             "Current Weapon = " +
             weaponManager.currentMeleeWeapon);
 
-        switch (weaponManager.currentMeleeWeapon)
+       switch (weaponManager.currentMeleeWeapon.weaponID)
         {
             case WeaponID.Sword:
                 SwordAttack();
@@ -89,21 +83,52 @@ public class PlayerCombat : MonoBehaviour
                 break;
         }
     }
+private void DamageTridentPoint(
+    Vector2 point,
+    float radius,
+    float damage)
+{
+    Collider2D[] enemies =
+        Physics2D.OverlapCircleAll(
+            point,
+            radius,
+            enemyLayer);
 
+    foreach (Collider2D enemy in enemies)
+    {
+        Combat_enemy combatEnemy =
+            enemy.GetComponent<Combat_enemy>();
+
+        if (combatEnemy != null)
+        {
+            combatEnemy.TakeDamage(
+                damage);
+        }
+    }
+}
     public void RangedAttack(InputAction.CallbackContext context)
     {
-        if (!context.performed)
-            return;
+        
 
-        switch (weaponManager.currentRangedWeapon)
+        switch (weaponManager.currentRangedWeapon.weaponID)
         {
             case WeaponID.Bow:
-                BowShoot();
+                BowShoot(context);
                 break;
 
             case WeaponID.Gun:
-                GunShoot();
-                break;
+
+    if (context.started)
+    {
+        gunTriggerHeld = true;
+    }
+
+    if (context.canceled)
+    {
+        gunTriggerHeld = false;
+    }
+
+    break;
 
             case WeaponID.Shuriken:
                 ShurikenThrow();
@@ -119,21 +144,47 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
-    private void SwordAttack()
-    {
-        if (isSwinging)
-            return;
+  private void SwordAttack()
+{
+    Sword swordWeapon =
+        weaponManager.currentMeleeWeapon
+        as Sword;
 
-       StartCoroutine(SwordDamageWindow());
+    if (swordWeapon == null)
+        return;
+
+    StartCoroutine(
+        SwordDamageWindow(
+            swordWeapon.swingDuration));
+}
+private void BowShoot(
+    InputAction.CallbackContext context)
+{
+    Bow bow =
+        weaponManager.currentRangedWeapon
+        as Bow;
+
+    if (bow == null)
+        return;
+
+    if (context.started)
+    {
+        bow.isDrawing = true;
+        bow.bowReady = false;
+        bow.drawStartTime = Time.time;
+
+        Debug.Log("Started Drawing");
     }
 
-    private void BowShoot()
+    if (context.canceled)
     {
-        if (Time.time < nextArrowTime)
-            return;
+        bow.isDrawing = false;
 
-        nextArrowTime =
-            Time.time + arrowWindupTime;
+        if (!bow.bowReady)
+        {
+            Debug.Log("Released Too Early");
+            return;
+        }
 
         GameObject arrow =
             Instantiate(
@@ -145,44 +196,219 @@ public class PlayerCombat : MonoBehaviour
             arrow.GetComponent<Rigidbody2D>();
 
         rb.linearVelocity =
-            -firePoint.up * arrowSpeed;
-    }
+            -firePoint.up *
+            bow.projectileSpeed;
 
-    private void HammerAttack()
-    {
-        Debug.Log("Hammer Attack");
-    }
+        bow.bowReady = false;
 
-    private void TridentAttack()
-    {
-        Debug.Log("Trident Attack");
+        Debug.Log("Arrow Fired");
     }
+}
+private void HammerAttack()
+{
+    Hammer hammer =
+        weaponManager.currentMeleeWeapon
+        as Hammer;
 
-    private void SpearSlash()
+    if (hammer == null)
+        return;
+
+    if (Time.time < nextAttackTime)
+        return;
+
+    nextAttackTime =
+        Time.time + hammer.cooldown;
+
+    Collider2D[] hitEnemies =
+        Physics2D.OverlapCircleAll(
+            hammerPoint.position,
+            hammer.impactRadius,
+            enemyLayer);
+
+    Debug.Log(
+        "Hammer Hit Count = " +
+        hitEnemies.Length);
+
+    foreach (Collider2D enemy in hitEnemies)
     {
-        Debug.Log("Spear Slash");
+        Combat_enemy combatEnemy =
+            enemy.GetComponent<Combat_enemy>();
+
+        if (combatEnemy != null)
+        {
+            combatEnemy.TakeDamage(
+                hammer.damage);
+        }
     }
+}
+private void TridentAttack()
+{
+    Trident trident =
+        weaponManager.currentMeleeWeapon
+        as Trident;
+
+    if (trident == null)
+        return;
+
+    DamageTridentPoint(
+        tridentLeftPoint.position,
+        trident.pointRadius,
+        trident.damage);
+
+    DamageTridentPoint(
+        tridentCenterPoint.position,
+        trident.pointRadius,
+        trident.damage);
+
+    DamageTridentPoint(
+        tridentRightPoint.position,
+        trident.pointRadius,
+        trident.damage);
+}
+private void SpearSlash()
+{
+    Spear spear =
+        weaponManager.currentMeleeWeapon
+        as Spear;
+
+    if (spear == null)
+        return;
+
+    RaycastHit2D[] hits =
+        Physics2D.BoxCastAll(
+            firePoint.position,
+            new Vector2(
+                spear.pokeWidth,
+                spear.range),
+            firePoint.eulerAngles.z,
+            firePoint.up,
+            0f,
+            enemyLayer);
+
+    foreach (RaycastHit2D hit in hits)
+    {
+        Combat_enemy enemy =
+            hit.collider.GetComponent<Combat_enemy>();
+
+        if (enemy != null)
+        {
+            enemy.TakeDamage(
+                spear.damage);
+        }
+    }
+}
 
     private void ShieldBash()
     {
         Debug.Log("Shield Bash");
     }
 
-    private void GunShoot()
+   private void ShurikenThrow()
+{
+    Shuriken shuriken =
+        weaponManager.currentRangedWeapon
+        as Shuriken;
+
+    if (shuriken == null)
+        return;
+
+    if (Time.time < shuriken.nextThrowTime)
+        return;
+
+    shuriken.nextThrowTime =
+        Time.time + shuriken.cooldown;
+
+    float angleStep = 0f;
+
+if (shuriken.projectileCount > 1)
+{
+    angleStep =
+        shuriken.spreadAngle /
+        (shuriken.projectileCount - 1);
+}
+
+    float startAngle =
+        -shuriken.spreadAngle / 2f;
+
+    for (int i = 0;
+         i < shuriken.projectileCount;
+         i++)
     {
-        Debug.Log("Gun Shoot");
+        float angle =
+            startAngle +
+            angleStep * i;
+
+        Quaternion rotation =
+            firePoint.rotation *
+            Quaternion.Euler(
+                0,
+                0,
+                angle);
+
+        GameObject projectile =
+            Instantiate(
+                shurikenPrefab,
+                firePoint.position,
+                rotation);
+
+        Rigidbody2D rb =
+            projectile.GetComponent<Rigidbody2D>();
+
+        Vector2 direction =
+            rotation * Vector2.down;
+
+        rb.linearVelocity =
+            direction *
+            shuriken.projectileSpeed;
+    }
+}
+
+private void ThrowSpear()
+{
+    Spear spear =
+        weaponManager.currentRangedWeapon
+        as Spear;
+
+    if (spear == null)
+        return;
+
+    if (Time.time < nextAttackTime)
+        return;
+
+    nextAttackTime =
+        Time.time + spear.cooldown;
+
+    if (spear.currentSpears <= 0)
+        return;
+
+    spear.currentSpears--;
+
+    Debug.Log(
+        "Spears Left = " +
+        spear.currentSpears);
+
+    GameObject projectile =
+        Instantiate(
+            spearPrefab,
+            firePoint.position,
+            firePoint.rotation);
+
+    SpearProjectile spearProjectile =
+        projectile.GetComponent<SpearProjectile>();
+
+    if (spearProjectile != null)
+    {
+        spearProjectile.Initialize(
+            spear.damage);
     }
 
-    private void ShurikenThrow()
-    {
-        Debug.Log("Shuriken Throw");
-    }
+    Rigidbody2D rb =
+        projectile.GetComponent<Rigidbody2D>();
 
-    private void ThrowSpear()
-    {
-        Debug.Log("Throw Spear");
-    }
-
+    rb.linearVelocity =
+        -firePoint.up *
+        spear.projectileSpeed;
+}
     private void ThrowShield()
     {
         Debug.Log("Throw Shield");
@@ -214,42 +440,194 @@ public class PlayerCombat : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        if (hammerPoint == null)
-            return;
+        if (firePoint != null)
+{
+    Gizmos.color = Color.yellow;
 
-        Gizmos.color = Color.red;
+    Gizmos.DrawWireSphere(
+        firePoint.position,
+        1.5f);
+}
 
-        Gizmos.DrawWireSphere(
-            hammerPoint.position,
-            hammerRange);
+        Gizmos.color = Color.blue;
+
+if (tridentLeftPoint != null)
+{
+    Gizmos.DrawWireSphere(
+        tridentLeftPoint.position,
+        0.25f);
+}
+
+if (tridentCenterPoint != null)
+{
+    Gizmos.DrawWireSphere(
+        tridentCenterPoint.position,
+        0.25f);
+}
+
+if (tridentRightPoint != null)
+{
+    Gizmos.DrawWireSphere(
+        tridentRightPoint.position,
+        0.25f);
+}
+       if (hammerPoint != null)
+{
+    Gizmos.color = Color.red;
+
+    Gizmos.DrawWireSphere(
+        hammerPoint.position,
+        0.5f);
+}
     }
 
-    private void Update()
+   private void Update()
+   
+{
+    Gun gun =
+    weaponManager.currentRangedWeapon
+    as Gun;
+
+if (gun != null)
+{
+    if (Keyboard.current.rKey.wasPressedThisFrame)
     {
-        if (Keyboard.current.digit1Key.wasPressedThisFrame)
+        if (!gun.isReloading &&
+            gun.currentAmmo <
+            gun.magazineSize)
         {
-            weaponManager.EquipMeleeWeapon(
-                WeaponID.Sword);
-        }
-
-        if (Keyboard.current.digit2Key.wasPressedThisFrame)
-        {
-            weaponManager.EquipMeleeWeapon(
-                WeaponID.Hammer);
-        }
-
-        if (Keyboard.current.digit3Key.wasPressedThisFrame)
-        {
-            weaponManager.EquipMeleeWeapon(
-                WeaponID.Trident);
+            reloadRoutine =
+                StartCoroutine(
+                    ReloadGun(gun));
         }
     }
-    private IEnumerator SwordDamageWindow()
+}
+    UpdateGun();
+    UpdateBow();
+    if (Keyboard.current.digit1Key.wasPressedThisFrame)
+        weaponManager.EquipWeapon(
+            WeaponID.Sword);
+
+    if (Keyboard.current.digit2Key.wasPressedThisFrame)
+        weaponManager.EquipWeapon(
+            WeaponID.Hammer);
+
+    if (Keyboard.current.digit3Key.wasPressedThisFrame)
+        weaponManager.EquipWeapon(
+            WeaponID.Trident);
+
+    if (Keyboard.current.digit4Key.wasPressedThisFrame)
+        weaponManager.EquipWeapon(
+            WeaponID.Bow);
+
+    if (Keyboard.current.digit5Key.wasPressedThisFrame)
+        weaponManager.EquipWeapon(
+            WeaponID.Gun);
+
+    if (Keyboard.current.digit6Key.wasPressedThisFrame)
+        weaponManager.EquipWeapon(
+            WeaponID.Shuriken);
+
+    if (Keyboard.current.digit7Key.wasPressedThisFrame)
+        weaponManager.EquipWeapon(
+            WeaponID.Spear);
+
+    if (Keyboard.current.digit8Key.wasPressedThisFrame)
+        weaponManager.EquipWeapon(
+            WeaponID.ReturningShield);
+}
+
+private IEnumerator SwordDamageWindow(
+    float duration)
 {
     swordHitbox.EnableDamage();
 
-    yield return new WaitForSeconds(0.2f);
+    yield return new WaitForSeconds(
+        duration);
 
     swordHitbox.DisableDamage();
+}
+
+private void UpdateBow()
+{
+    Bow bow =
+        weaponManager.currentRangedWeapon
+        as Bow;
+
+    if (bow == null)
+        return;
+
+    if (!bow.isDrawing)
+        return;
+
+    if (!bow.bowReady &&
+        Time.time - bow.drawStartTime >= bow.drawTime)
+    {
+        bow.bowReady = true;
+
+        Debug.Log("Bow Ready");
+    }
+}
+private IEnumerator ReloadGun(
+    Gun gun)
+{
+    gun.isReloading = true;
+
+    Debug.Log("Reloading...");
+
+    yield return new WaitForSeconds(
+        gun.reloadTime);
+
+    gun.currentAmmo =
+        gun.magazineSize;
+
+    gun.isReloading = false;
+
+    Debug.Log("Reload Complete");
+}
+private void UpdateGun()
+{
+    Gun gun =
+        weaponManager.currentRangedWeapon
+        as Gun;
+
+    if (gun == null)
+        return;
+
+    if (!gunTriggerHeld)
+        return;
+
+    if (gun.isReloading)
+        return;
+
+    if (gun.currentAmmo <= 0)
+        return;
+
+    if (Time.time < gun.nextShotTime)
+        return;
+
+    gun.nextShotTime =
+        Time.time + gun.fireRate;
+
+    gun.currentAmmo--;
+
+    GameObject bullet =
+        Instantiate(
+            bulletPrefab,
+            firePoint.position,
+            firePoint.rotation);
+
+    Rigidbody2D rb =
+        bullet.GetComponent<Rigidbody2D>();
+
+    rb.linearVelocity =
+        -firePoint.up *
+        gun.projectileSpeed;
+
+    Debug.Log(
+        "Ammo: " +
+        gun.currentAmmo +
+        "/" +
+        gun.magazineSize);
 }
 }

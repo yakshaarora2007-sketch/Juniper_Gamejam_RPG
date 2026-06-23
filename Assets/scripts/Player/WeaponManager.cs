@@ -2,53 +2,80 @@ using UnityEngine;
 
 public class WeaponManager : MonoBehaviour
 {
-    public WeaponID currentMeleeWeapon;
-    public WeaponID currentRangedWeapon;
+    public Weapon currentMeleeWeapon;
+    public Weapon currentRangedWeapon;
+
+    private Sword sword;
+    private Hammer hammer;
+    private Trident trident;
+
+    private Bow bow;
+    private Gun gun;
+    private Shuriken shuriken;
+
+    private Spear spear;
+    private ReturningShield returningShield;
 
     private void Start()
     {
-        currentMeleeWeapon = WeaponID.Sword;
-        currentRangedWeapon = WeaponID.Bow;
-    }
-public void EquipMeleeWeapon(WeaponID weapon)
-{
-    currentMeleeWeapon = weapon;
+        sword = new Sword();
+        hammer = new Hammer();
+        trident = new Trident();
 
-    Debug.Log("Melee Weapon Equipped: " + currentMeleeWeapon);
-}
+        bow = new Bow();
+        gun = new Gun();
+        shuriken = new Shuriken();
 
-public void EquipRangedWeapon(WeaponID weapon)
-{
-    currentRangedWeapon = weapon;
+        spear = new Spear();
+        returningShield = new ReturningShield();
 
-    Debug.Log("Ranged Weapon Equipped: " + currentRangedWeapon);
-}
-
-    public bool IsHybrid(WeaponID weapon)
-    {
-        return weapon == WeaponID.Spear ||
-               weapon == WeaponID.ReturningShield;
+        currentMeleeWeapon = sword;
+        currentRangedWeapon = bow;
     }
 
-    public void SetRoundWeapons(
-        WeaponID meleeResult,
-        WeaponID rangedResult)
+    public void EquipWeapon(WeaponID weaponID)
     {
-        if (IsHybrid(meleeResult))
+        switch (weaponID)
         {
-            currentMeleeWeapon = meleeResult;
-            currentRangedWeapon = meleeResult;
-            return;
+            case WeaponID.Sword:
+                currentMeleeWeapon = sword;
+                break;
+
+            case WeaponID.Hammer:
+                currentMeleeWeapon = hammer;
+                break;
+
+            case WeaponID.Trident:
+                currentMeleeWeapon = trident;
+                break;
+
+            case WeaponID.Bow:
+                currentRangedWeapon = bow;
+                break;
+
+            case WeaponID.Gun:
+                currentRangedWeapon = gun;
+                break;
+
+            case WeaponID.Shuriken:
+                currentRangedWeapon = shuriken;
+                break;
+
+            case WeaponID.Spear:
+                currentMeleeWeapon = spear;
+                currentRangedWeapon = spear;
+                break;
+
+            case WeaponID.ReturningShield:
+                currentMeleeWeapon = returningShield;
+                currentRangedWeapon = returningShield;
+                break;
         }
 
-        if (IsHybrid(rangedResult))
-        {
-            currentMeleeWeapon = rangedResult;
-            currentRangedWeapon = rangedResult;
-            return;
-        }
-
-        
+        Debug.Log(
+            "Melee: " +
+            currentMeleeWeapon.weaponID +
+            " | Ranged: " +
+            currentRangedWeapon.weaponID);
     }
-    
 }

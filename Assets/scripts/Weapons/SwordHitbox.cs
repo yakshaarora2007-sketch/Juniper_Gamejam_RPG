@@ -16,8 +16,8 @@ public class SwordHitbox : MonoBehaviour
 {
     canDamage = false;
     swordCollider.enabled = false;
-}
-private void OnTriggerStay2D(Collider2D other)
+}private void OnTriggerEnter2D(
+    Collider2D other)
 {
     if (!canDamage)
         return;
@@ -29,9 +29,9 @@ private void OnTriggerStay2D(Collider2D other)
     {
         enemy.TakeDamage(damage);
 
-        Debug.Log("Sword damaged " + other.name);
-
-        canDamage = false;
+        Debug.Log(
+            "Sword damaged " +
+            other.name);
     }
 }
 private void Start()

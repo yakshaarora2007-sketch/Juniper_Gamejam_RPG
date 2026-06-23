@@ -273,6 +273,13 @@ private void SpearSlash()
 
     if (spear == null)
         return;
+        if (spear.currentSpears <= 0)
+{
+    Debug.Log(
+        "No Spears Available");
+
+    return;
+}
 
     RaycastHit2D[] hits =
         Physics2D.BoxCastAll(
@@ -325,14 +332,17 @@ private void SpearSlash()
 
     foreach (Collider2D enemy in hitEnemies)
     {
-        Combat_enemy combatEnemy =
-            enemy.GetComponent<Combat_enemy>();
+      Combat_enemy combatEnemy =
+    enemy.GetComponentInParent<Combat_enemy>();
 
         if (combatEnemy != null)
         {
             combatEnemy.TakeDamage(
                 shield.bashDamage);
         }
+        Debug.Log(
+    "Shield damaged " +
+    enemy.name);
     }
 }
 

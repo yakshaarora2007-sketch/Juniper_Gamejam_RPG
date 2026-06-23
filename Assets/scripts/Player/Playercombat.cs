@@ -322,7 +322,7 @@ private void SpearSlash()
 
     Collider2D[] hitEnemies =
         Physics2D.OverlapCircleAll(
-    firePoint.position,
+    hammerPoint.position,
     shield.bashRange,
     enemyLayer);
 
@@ -557,7 +557,7 @@ if (tridentRightPoint != null)
 
     Gizmos.DrawWireSphere(
         hammerPoint.position,
-        0.5f);
+        1.5f);
 }
     }
 

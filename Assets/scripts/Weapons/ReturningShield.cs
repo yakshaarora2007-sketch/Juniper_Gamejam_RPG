@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ReturningShield : HybridWeapon
 {
-    public float bashDamage;
+    public float bashDamage = 5f;
     
 public float bashRange;
 public bool shieldOut;

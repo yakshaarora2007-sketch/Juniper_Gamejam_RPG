@@ -16,7 +16,8 @@ public class SwordHitbox : MonoBehaviour
 {
     canDamage = false;
     swordCollider.enabled = false;
-}private void OnTriggerEnter2D(
+}
+private void OnTriggerEnter2D(
     Collider2D other)
 {
     if (!canDamage)

@@ -1,11 +1,16 @@
-using UnityEngine;
-
-public class WeaponID
+public enum WeaponID
 {
-    public enum WeaponType
-    {
-        Sword,
-        Hammer,
-        Trident,
-    }
+    // Melee
+    Sword,
+    Hammer,
+    Trident,
+
+    // Ranged
+    Bow,
+    Gun,
+    Shuriken,
+
+    // Hybrid
+    ReturningShield,
+    Spear
 }

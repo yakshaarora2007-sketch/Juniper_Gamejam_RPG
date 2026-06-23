@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 9070865619902538550}
   - component: {fileID: 3147094370751761528}
   m_Layer: 10
-  m_Name: ArrowSprite
+  m_Name: SpearSprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -25,13 +25,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2308545853557941868}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: -0.92387956, w: 0.38268343}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 290102089645792200}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -135}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &3147094370751761528
 SpriteRenderer:
   serializedVersion: 2
@@ -101,10 +101,11 @@ GameObject:
   m_Component:
   - component: {fileID: 290102089645792200}
   - component: {fileID: 4527049023811614585}
-  - component: {fileID: 4149853865847794798}
   - component: {fileID: 365247429008419154}
+  - component: {fileID: 2290406398827537565}
+  - component: {fileID: 6125378137886908858}
   m_Layer: 10
-  m_Name: Arrow
+  m_Name: Spear
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -119,7 +120,7 @@ Transform:
   m_GameObject: {fileID: 4591454390291401451}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.20115, y: 1.91981, z: 0}
+  m_LocalPosition: {x: -5.2, y: 1.9188, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -153,20 +154,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 0
---- !u!114 &4149853865847794798
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4591454390291401451}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b4d3163052052f94788e63199422e6bc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  arrowDamage: 7.5
-  lifetime: 5
 --- !u!60 &365247429008419154
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -219,3 +206,30 @@ PolygonCollider2D:
       - {x: -0.35801265, y: -0.5041257}
       - {x: 0.51360327, y: 0.3620419}
   m_UseDelaunayMesh: 1
+--- !u!114 &2290406398827537565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4591454390291401451}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0421739e7249f6143ab0f351ce2f0d47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpearPickup
+--- !u!114 &6125378137886908858
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4591454390291401451}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1f3e92996219184e8d27305346c948c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpearProjectile
+  throwDuration: 8
+  pickupLifetime: 8
+  pierceCount: 999

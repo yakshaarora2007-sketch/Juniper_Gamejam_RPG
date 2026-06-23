@@ -307,6 +307,7 @@ private void SpearSlash()
 
    private void ShieldBash()
 {
+ 
     ReturningShield shield =
         weaponManager.currentMeleeWeapon
         as ReturningShield;
@@ -325,6 +326,13 @@ private void SpearSlash()
     hammerPoint.position,
     shield.bashRange,
     enemyLayer);
+       if (shield.shieldOut)
+{
+    Debug.Log(
+        "Shield Is Thrown");
+
+    return;
+}
 
     Debug.Log(
         "Shield Hit Count = " +

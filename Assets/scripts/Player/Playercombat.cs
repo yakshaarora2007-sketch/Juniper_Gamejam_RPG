@@ -298,10 +298,43 @@ private void SpearSlash()
     }
 }
 
-    private void ShieldBash()
+   private void ShieldBash()
+{
+    ReturningShield shield =
+        weaponManager.currentMeleeWeapon
+        as ReturningShield;
+
+    if (shield == null)
+        return;
+
+    if (Time.time < nextAttackTime)
+        return;
+
+    nextAttackTime =
+        Time.time + shield.cooldown;
+
+    Collider2D[] hitEnemies =
+        Physics2D.OverlapCircleAll(
+    firePoint.position,
+    shield.bashRange,
+    enemyLayer);
+
+    Debug.Log(
+        "Shield Hit Count = " +
+        hitEnemies.Length);
+
+    foreach (Collider2D enemy in hitEnemies)
     {
-        Debug.Log("Shield Bash");
+        Combat_enemy combatEnemy =
+            enemy.GetComponent<Combat_enemy>();
+
+        if (combatEnemy != null)
+        {
+            combatEnemy.TakeDamage(
+                shield.bashDamage);
+        }
     }
+}
 
    private void ShurikenThrow()
 {
@@ -409,11 +442,47 @@ private void ThrowSpear()
         -firePoint.up *
         spear.projectileSpeed;
 }
-    private void ThrowShield()
+private void ThrowShield()
+{
+    Debug.Log("Shield Thrown");
+    ReturningShield shield =
+        weaponManager.currentRangedWeapon
+        as ReturningShield;
+
+    if (shield == null)
+        return;
+
+    if (shield.shieldOut)
+        return;
+
+    shield.shieldOut = true;
+
+    GameObject projectile =
+        Instantiate(
+            shieldPrefab,
+            firePoint.position,
+            firePoint.rotation);
+
+    ShieldProjectile shieldProjectile =
+        projectile.GetComponent<ShieldProjectile>();
+
+    if (shieldProjectile != null)
     {
-        Debug.Log("Throw Shield");
+        shieldProjectile.Initialize(
+            shield.damage,
+            shield.ricochetRadius,
+            shield.maxRicochets,
+            shield.returnSpeed,
+            shield);
     }
 
+    Rigidbody2D rb =
+        projectile.GetComponent<Rigidbody2D>();
+
+    rb.linearVelocity =
+        -firePoint.up *
+        shield.projectileSpeed;
+}
     
     public void TakeDamage(float damage)
     {
@@ -440,6 +509,7 @@ private void ThrowSpear()
 
     private void OnDrawGizmosSelected()
     {
+       
         if (firePoint != null)
 {
     Gizmos.color = Color.yellow;

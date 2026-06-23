@@ -2,9 +2,16 @@ using UnityEngine;
 
 public class ReturningShield : HybridWeapon
 {
-    public float returnSpeed;
+    public float bashDamage;
+    
+public float bashRange;
+public bool shieldOut;
 
-    public bool shieldOut;
+public float returnSpeed = 16f;
+
+public int maxRicochets = 3;
+
+public float ricochetRadius = 50f;
 
     public ReturningShield()
     {

@@ -3775,7 +3775,7 @@ Transform:
   m_GameObject: {fileID: 1521062723}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.91, y: 3.84, z: 0}
+  m_LocalPosition: {x: 2.87, y: 3.84, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5011,7 +5011,7 @@ MonoBehaviour:
   bulletPrefab: {fileID: 4591454390291401451, guid: 4750a3072bb0a1f429a1a9d03507c9f4, type: 3}
   shurikenPrefab: {fileID: 4591454390291401451, guid: c53ae564eb68d1649bf04e5700b841cf, type: 3}
   spearPrefab: {fileID: 4591454390291401451, guid: b49d06967d2e1e845a2d33b530b051b8, type: 3}
-  shieldPrefab: {fileID: 4591454390291401451, guid: 4750a3072bb0a1f429a1a9d03507c9f4, type: 3}
+  shieldPrefab: {fileID: 4591454390291401451, guid: 9f9a7c9c50b475a4ba99c8216faf327d, type: 3}
   enemyLayer:
     serializedVersion: 2
     m_Bits: 640

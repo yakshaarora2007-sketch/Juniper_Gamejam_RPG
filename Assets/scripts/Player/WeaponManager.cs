@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class WeaponManager : MonoBehaviour
 {
-    public Weapon currentMeleeWeapon;
-    public Weapon currentRangedWeapon;
+    public Weapon currentMeleeWeapon = null;
+    public Weapon currentRangedWeapon = null;
 
     private Sword sword;
     private Hammer hammer;
@@ -33,7 +33,8 @@ public class WeaponManager : MonoBehaviour
         currentRangedWeapon = bow;
     }
 
-    public void EquipWeapon(WeaponID weaponID)
+    public void EquipWeapon(
+        WeaponID weaponID)
     {
         switch (weaponID)
         {
@@ -77,5 +78,59 @@ public class WeaponManager : MonoBehaviour
             currentMeleeWeapon.weaponID +
             " | Ranged: " +
             currentRangedWeapon.weaponID);
+    }
+
+    public void SetMeleeWeapon(
+        WeaponID weaponID)
+    {
+        switch (weaponID)
+        {
+            case WeaponID.Sword:
+                currentMeleeWeapon = sword;
+                break;
+
+            case WeaponID.Hammer:
+                currentMeleeWeapon = hammer;
+                break;
+
+            case WeaponID.Trident:
+                currentMeleeWeapon = trident;
+                break;
+
+            case WeaponID.Spear:
+                currentMeleeWeapon = spear;
+                break;
+
+            case WeaponID.ReturningShield:
+                currentMeleeWeapon = returningShield;
+                break;
+        }
+    }
+
+    public void SetRangedWeapon(
+        WeaponID weaponID)
+    {
+        switch (weaponID)
+        {
+            case WeaponID.Bow:
+                currentRangedWeapon = bow;
+                break;
+
+            case WeaponID.Gun:
+                currentRangedWeapon = gun;
+                break;
+
+            case WeaponID.Shuriken:
+                currentRangedWeapon = shuriken;
+                break;
+
+            case WeaponID.Spear:
+                currentRangedWeapon = spear;
+                break;
+
+            case WeaponID.ReturningShield:
+                currentRangedWeapon = returningShield;
+                break;
+        }
     }
 }

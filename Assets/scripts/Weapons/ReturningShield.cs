@@ -4,7 +4,7 @@ public class ReturningShield : HybridWeapon
 {
     public float bashDamage = 5f;
     
-public float bashRange;
+public float bashRange = 1f;
 public bool shieldOut;
 
 public float returnSpeed = 16f;

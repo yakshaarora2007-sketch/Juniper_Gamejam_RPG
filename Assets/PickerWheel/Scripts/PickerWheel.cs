@@ -1,259 +1,263 @@
-﻿using UnityEngine ;
-using UnityEngine.UI ;
-using DG.Tweening ;
-using UnityEngine.Events ;
-using System.Collections.Generic ;
+﻿using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.Events;
+using DG.Tweening;
 
-namespace EasyUI.PickerWheelUI {
-
-   public class PickerWheel : MonoBehaviour {
-
-      [Header ("References :")]
-      [SerializeField] private GameObject linePrefab ;
-      [SerializeField] private Transform linesParent ;
-
-      [Space]
-      [SerializeField] private Transform PickerWheelTransform ;
-      [SerializeField] private Transform wheelCircle ;
-      [SerializeField] private GameObject wheelPiecePrefab ;
-      [SerializeField] private GameObject sectorPrefab;
-      [SerializeField] private Transform wheelPiecesParent ;
-
-      [Space]
-      [Header ("Sounds :")]
-      [SerializeField] private AudioSource audioSource ;
-      [SerializeField] private AudioClip tickAudioClip ;
-      [SerializeField] [Range (0f, 1f)] private float volume = .5f ;
-      [SerializeField] [Range (-3f, 3f)] private float pitch = 1f ;
-
-      [Space]
-      [Header ("Picker wheel settings :")]
-      [Range (1, 20)] public int spinDuration = 8 ;
-      [SerializeField] [Range (.2f, 2f)] private float wheelSize = 1f ;
-
-      [Space]
-      [Header ("Picker wheel pieces :")]
-      public WheelPiece[] wheelPieces ;
-
-      // Events
-      private UnityAction onSpinStartEvent ;
-      private UnityAction<WheelPiece> onSpinEndEvent ;
-
-
-      private bool _isSpinning = false ;
-
-      public bool IsSpinning { get { return _isSpinning ; } }
-
-
-      private Vector2 pieceMinSize = new Vector2 (81f, 146f) ;
-      private Vector2 pieceMaxSize = new Vector2 (144f, 213f) ;
-      private int piecesMin = 2 ;
-      private int piecesMax = 12 ;
-
-      private float pieceAngle ;
-      private float halfPieceAngle ;
-      private float halfPieceAngleWithPaddings ;
-
-
-      private double accumulatedWeight ;
-      private System.Random rand = new System.Random () ;
-
-      private List<int> nonZeroChancesIndices = new List<int> () ;
-
-      private void Start () {
-         pieceAngle = 360 / wheelPieces.Length ;
-         halfPieceAngle = pieceAngle / 2f ;
-         halfPieceAngleWithPaddings = halfPieceAngle - (halfPieceAngle / 4f) ;
-
-         Generate () ;  
-
-         CalculateWeightsAndIndices () ;
-         if (nonZeroChancesIndices.Count == 0)
-            Debug.LogError ("You can't set all pieces chance to zero") ;
-
-
-         SetupAudio () ;
-
-      }
-
-      private void SetupAudio () {
-         audioSource.clip = tickAudioClip ;
-         audioSource.volume = volume ;
-         audioSource.pitch = pitch ;
-      }
-
-      private void Generate () {
-         foreach (Transform child in wheelPiecesParent)
+namespace EasyUI.PickerWheelUI
 {
-    if (child.name.Contains("Sector"))
-        Destroy(child.gameObject);
-}
-         wheelPiecePrefab = InstantiatePiece () ;
+    public class PickerWheel : MonoBehaviour
+    {
+        [Header("References")]
+        [SerializeField] private GameObject linePrefab;
+        [SerializeField] private Transform linesParent;
 
-         RectTransform rt = wheelPiecePrefab.transform.GetChild (0).GetComponent <RectTransform> () ;
-         float pieceWidth = Mathf.Lerp (pieceMinSize.x, pieceMaxSize.x, 1f - Mathf.InverseLerp (piecesMin, piecesMax, wheelPieces.Length)) ;
-         float pieceHeight = Mathf.Lerp (pieceMinSize.y, pieceMaxSize.y, 1f - Mathf.InverseLerp (piecesMin, piecesMax, wheelPieces.Length)) ;
-         rt.SetSizeWithCurrentAnchors (RectTransform.Axis.Horizontal, pieceWidth) ;
-         rt.SetSizeWithCurrentAnchors (RectTransform.Axis.Vertical, pieceHeight) ;
+        [SerializeField] private Transform wheelCircle;
 
-         for (int i = 0; i < wheelPieces.Length; i++){
-            DrawPiece (i) ;
-            CreateSector(i);
-         }
+        [SerializeField] private GameObject wheelPiecePrefab;
+        [SerializeField] private GameObject sectorPrefab;
 
-         Destroy (wheelPiecePrefab) ;
-      }
+        [SerializeField] private Transform wheelPiecesParent;
 
-      private void DrawPiece (int index) {
-         WheelPiece piece = wheelPieces [ index ] ;
-         Transform pieceTrns = InstantiatePiece ().transform.GetChild (0) ;
+        [Header("Settings")]
+        [SerializeField] private float spinDuration = 3f;
+        [SerializeField] private int extraRotations = 6;
 
-         pieceTrns.GetChild (0).GetComponent <Image> ().sprite = piece.Icon ;
-         pieceTrns.GetChild (1).GetComponent <Text> ().text = piece.Label ;
-         pieceTrns.GetChild (2).GetComponent <Text> ().text = piece.Amount.ToString () ;
+        [Header("Pieces")]
+        public WheelPiece[] wheelPieces;
 
-         //Line
-         Transform lineTrns = Instantiate (linePrefab, linesParent.position, Quaternion.identity, linesParent).transform ;
-         lineTrns.RotateAround (wheelPiecesParent.position, Vector3.back, (pieceAngle * index) + halfPieceAngle) ;
+        private UnityAction onSpinStartEvent;
+        private UnityAction<WheelPiece> onSpinEndEvent;
 
-         pieceTrns.RotateAround (wheelPiecesParent.position, Vector3.back, pieceAngle * index) ;
-      }
+        private bool isSpinning;
 
-      private GameObject InstantiatePiece () {
-         return Instantiate (wheelPiecePrefab, wheelPiecesParent.position, Quaternion.identity, wheelPiecesParent) ;
-      }
-private void CreateSector(int index)
+        public bool IsSpinning => isSpinning;
+
+        private float pieceAngle;
+
+        private void Awake()
+        {
+            pieceAngle = 360f / wheelPieces.Length;
+
+            GenerateWheel();
+        }
+
+        public void OnSpinStart(UnityAction action)
+        {
+            onSpinStartEvent = action;
+        }
+
+        public void OnSpinEnd(UnityAction<WheelPiece> action)
+        {
+            onSpinEndEvent = action;
+        }
+
+        public void Spin()
+        {
+            if (isSpinning)
+                return;
+
+            isSpinning = true;
+
+            onSpinStartEvent?.Invoke();
+
+            int chosenIndex = GetWeightedIndex();
+
+            WheelPiece chosenPiece =
+                wheelPieces[chosenIndex];
+
+            Debug.Log(
+                "Chosen Piece = " +
+                chosenPiece.Label);
+
+            float centerAngle =
+                -(chosenIndex * pieceAngle);
+
+            float randomOffset =
+                Random.Range(
+                    -pieceAngle * 0.4f,
+                     pieceAngle * 0.4f);
+
+            float finalAngle =
+                centerAngle +
+                randomOffset;
+
+            float currentRotation =
+                wheelCircle.eulerAngles.z;
+
+            float targetRotation =
+                currentRotation +
+                (extraRotations * 360f) +
+                (360f - finalAngle);
+
+            wheelCircle
+                .DORotate(
+                    new Vector3(
+                        0,
+                        0,
+                        targetRotation),
+                    spinDuration,
+                    RotateMode.FastBeyond360)
+                .SetEase(Ease.OutQuart)
+                .OnComplete(() =>
+                {
+                    isSpinning = false;
+
+                    onSpinEndEvent?.Invoke(
+                        chosenPiece);
+                });
+        }
+
+        private int GetWeightedIndex()
+        {
+            float totalWeight = 0f;
+
+            for (int i = 0; i < wheelPieces.Length; i++)
+            {
+                totalWeight +=
+                    Mathf.Max(
+                        0,
+                        wheelPieces[i].Chance);
+            }
+
+            float randomValue =
+                Random.Range(
+                    0f,
+                    totalWeight);
+
+            float runningTotal = 0f;
+
+            for (int i = 0; i < wheelPieces.Length; i++)
+            {
+                runningTotal +=
+                    Mathf.Max(
+                        0,
+                        wheelPieces[i].Chance);
+
+                if (randomValue <= runningTotal)
+                {
+                    Debug.Log(
+                        "Random = " +
+                        randomValue +
+                        " -> " +
+                        wheelPieces[i].Label);
+
+                    return i;
+                }
+            }
+
+            return wheelPieces.Length - 1;
+        }
+
+        private void GenerateWheel()
+        {
+            foreach (Transform child in wheelPiecesParent)
+                Destroy(child.gameObject);
+
+            foreach (Transform child in linesParent)
+                Destroy(child.gameObject);
+
+            for (int i = 0; i < wheelPieces.Length; i++)
+            {
+                CreateSector(i);
+                CreatePiece(i);
+                CreateLine(i);
+            }
+        }
+
+        private void CreateSector(int index)
+        {
+            WheelPiece piece = wheelPieces[index];
+
+            GameObject sector =
+                Instantiate(
+                    sectorPrefab,
+                    wheelPiecesParent);
+
+            sector.transform.SetAsFirstSibling();
+
+            Image img =
+                sector.GetComponent<Image>();
+
+            img.color = piece.PieceColor;
+
+            img.fillAmount =
+                1f / wheelPieces.Length;
+
+            RectTransform rt =
+                sector.GetComponent<RectTransform>();
+
+            rt.localPosition =
+                Vector3.zero;
+
+            rt.localScale =
+                Vector3.one;
+
+            rt.localRotation =
+                Quaternion.Euler(
+                    0,
+                    0,
+                    -(index * pieceAngle));
+        }
+private void CreatePiece(int index)
 {
     WheelPiece piece = wheelPieces[index];
 
-    GameObject sector = Instantiate(
-        sectorPrefab,
-        wheelPiecesParent);
+    GameObject obj =
+        Instantiate(
+            wheelPiecePrefab,
+            wheelPiecesParent);
 
-    sector.transform.SetAsFirstSibling();
+    RectTransform rt =
+        obj.transform.GetChild(0)
+        .GetComponent<RectTransform>();
 
-    Image img = sector.GetComponent<Image>();
+    float radius = 130f;
 
-    img.color = piece.PieceColor;
+    float angle =
+        index * pieceAngle * Mathf.Deg2Rad;
 
-    // Tiny reduction prevents overlap artifacts
-    img.fillAmount = (1f / wheelPieces.Length) - 0.001f;
+  
 
-    RectTransform rt = sector.GetComponent<RectTransform>();
+rt.localPosition = Vector3.zero;
 
-    rt.localPosition = Vector3.zero;
-    rt.localScale = Vector3.one;
+obj.transform.Rotate(
+    Vector3.forward,
+    -(index * pieceAngle));
+rt.RotateAround(
+    wheelPiecesParent.position,
+    Vector3.back,
+    pieceAngle * index);
+   
 
-    // IMPORTANT
-    rt.localRotation = Quaternion.Euler(
-        0f,
-        0f,
-        -(pieceAngle * index) - (pieceAngle / 2f));
+    rt.GetChild(0)
+        .GetComponent<Image>()
+        .sprite = piece.Icon;
+
+    rt.GetChild(1)
+        .GetComponent<Text>()
+        .text = piece.Label;
+
+    rt.GetChild(2)
+        .GetComponent<Text>()
+        .text = piece.Amount.ToString();
 }
-      public void Spin () {
-         if (!_isSpinning) {
-            _isSpinning = true ;
-            if (onSpinStartEvent != null)
-               onSpinStartEvent.Invoke () ;
 
-            int index = GetRandomPieceIndex () ;
-            WheelPiece piece = wheelPieces [ index ] ;
+        private void CreateLine(int index)
+        {
+            Transform line =
+                Instantiate(
+                    linePrefab,
+                    linesParent)
+                .transform;
 
-            if (piece.Chance == 0 && nonZeroChancesIndices.Count != 0) {
-               index = nonZeroChancesIndices [ Random.Range (0, nonZeroChancesIndices.Count) ] ;
-               piece = wheelPieces [ index ] ;
-            }
+            line.localPosition =
+                Vector3.zero;
 
-            float angle = -(pieceAngle * index) ;
-
-            float rightOffset = (angle - halfPieceAngleWithPaddings) % 360 ;
-            float leftOffset = (angle + halfPieceAngleWithPaddings) % 360 ;
-
-            float randomAngle = Random.Range (leftOffset, rightOffset) ;
-
-            Vector3 targetRotation = Vector3.back * (randomAngle + 2 * 360 * spinDuration) ;
-
-            //float prevAngle = wheelCircle.eulerAngles.z + halfPieceAngle ;
-            float prevAngle, currentAngle ;
-            prevAngle = currentAngle = wheelCircle.eulerAngles.z ;
-
-            bool isIndicatorOnTheLine = false ;
-
-            wheelCircle
-            .DORotate (targetRotation, spinDuration, RotateMode.FastBeyond360)
-            .SetEase (Ease.InOutQuart)
-            .OnUpdate (() => {
-               float diff = Mathf.Abs (prevAngle - currentAngle) ;
-               if (diff >= halfPieceAngle) {
-                  if (isIndicatorOnTheLine) {
-                     audioSource.PlayOneShot (audioSource.clip) ;
-                  }
-                  prevAngle = currentAngle ;
-                  isIndicatorOnTheLine = !isIndicatorOnTheLine ;
-               }
-               currentAngle = wheelCircle.eulerAngles.z ;
-            })
-            .OnComplete (() => {
-               _isSpinning = false ;
-               if (onSpinEndEvent != null)
-                  onSpinEndEvent.Invoke (piece) ;
-
-               onSpinStartEvent = null ; 
-               onSpinEndEvent = null ;
-            }) ;
-
-         }
-      }
-
-      private void FixedUpdate () {
-
-      }
-
-      public void OnSpinStart (UnityAction action) {
-         onSpinStartEvent = action ;
-      }
-
-      public void OnSpinEnd (UnityAction<WheelPiece> action) {
-         onSpinEndEvent = action ;
-      }
-
-
-      private int GetRandomPieceIndex () {
-         double r = rand.NextDouble () * accumulatedWeight ;
-
-         for (int i = 0; i < wheelPieces.Length; i++)
-            if (wheelPieces [ i ]._weight >= r)
-               return i ;
-
-         return 0 ;
-      }
-
-      private void CalculateWeightsAndIndices () {
-         for (int i = 0; i < wheelPieces.Length; i++) {
-            WheelPiece piece = wheelPieces [ i ] ;
-
-            //add weights:
-            accumulatedWeight += piece.Chance ;
-            piece._weight = accumulatedWeight ;
-
-            //add index :
-            piece.Index = i ;
-
-            //save non zero chance indices:
-            if (piece.Chance > 0)
-               nonZeroChancesIndices.Add (i) ;
-         }
-      }
-
-
-
-
-      private void OnValidate () {
-         if (PickerWheelTransform != null)
-            PickerWheelTransform.localScale = new Vector3 (wheelSize, wheelSize, 1f) ;
-
-         if (wheelPieces.Length > piecesMax || wheelPieces.Length < piecesMin)
-            Debug.LogError ("[ PickerWheelwheel ]  pieces length must be between " + piecesMin + " and " + piecesMax) ;
-      }
-   }
+            line.localRotation =
+                Quaternion.Euler(
+                    0,
+                    0,
+                    -(index * pieceAngle));
+        }
+    }
 }

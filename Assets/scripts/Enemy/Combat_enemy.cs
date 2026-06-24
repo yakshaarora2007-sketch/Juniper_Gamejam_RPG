@@ -72,4 +72,17 @@ public class Combat_enemy : MonoBehaviour
 
         Destroy(gameObject);
     }
+    
+ private float timer;
+
+private void Update()
+{
+    timer += Time.deltaTime;
+
+    if(timer > 2f)
+    {
+        TakeDamage(10);
+        timer = 0f;
+    }
+}
 }

@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 
 public class Movement : MonoBehaviour
 {
+    public bool isKnockedBack;
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
 
@@ -15,10 +16,12 @@ public class Movement : MonoBehaviour
     }
 
     private void FixedUpdate()
-    {
-        rb.linearVelocity = moveInput * moveSpeed;
-    }
+{
+    if(isKnockedBack)
+        return;
 
+    rb.linearVelocity = moveInput * moveSpeed;
+}
     public void Move(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();

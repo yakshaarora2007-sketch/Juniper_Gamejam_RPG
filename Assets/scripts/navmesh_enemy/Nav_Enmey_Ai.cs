@@ -1,8 +1,11 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections;
 public class navmesh_enemy : MonoBehaviour
 {
-
+[SerializeField] GameObject projectilePrefab;
+[SerializeField] Transform firePoint;
+[SerializeField] float projectileSpeed = 10f;
  [SerializeField] Transform target; //taregt follower
  [SerializeField] float detectionRange = 7f; // Range in which follows
 [SerializeField] float attackRange = 1.5f; // range of attack
@@ -15,8 +18,21 @@ float attackTimer;
 Vector3 lastKnownPosition;
 
 [SerializeField] float memoryDuration = 3f;
+[SerializeField] int bulletsPerBurst = 3;
+[SerializeField] float burstDelay = 0.15f;
+[SerializeField] float meleeDamage = 10f;
+bool isBursting;
 float memoryTimer;
  NavMeshAgent agent;
+
+ public enum EnemyType
+{
+    Melee,
+    Ranged,
+    Tank,
+    Archer
+}
+[SerializeField] EnemyType enemyType;
 enum EnemyState
 {
     Idle,
@@ -97,13 +113,24 @@ private void Update()
         case EnemyState.Attack:
 
             agent.ResetPath();
+                Vector2 lookDirection =
+                    target.position - transform.position;
 
-            if(attackTimer >= attackCooldown)
-            {
-                Debug.Log("ATTACK");
+                float angle =
+                    Mathf.Atan2(
+                        lookDirection.y,
+                        lookDirection.x
+                    ) * Mathf.Rad2Deg - 90f;
 
-                attackTimer = 0f;
-            }
+                transform.rotation =
+                    Quaternion.Euler(0, 0, angle);
+                if(attackTimer >= attackCooldown)
+                {
+                     Debug.Log("ATTACKING");
+                    Attack();
+
+                    attackTimer = 0f;
+                }
 
             break;
     }
@@ -122,6 +149,7 @@ private void Update()
             10f * Time.deltaTime
         );
     }
+}
 bool HasLineOfSight()
 {
     Vector2 direction =
@@ -139,14 +167,7 @@ bool HasLineOfSight()
     direction.normalized * detectionRange,
     Color.red
     );
-    if(hit.collider != null)
-{
-    Debug.Log("Hit: " + hit.collider.name);
-}
-else
-{
-    Debug.Log("Hit Nothing");
-}
+    
 
     if(hit.collider == null)
     {
@@ -155,6 +176,78 @@ else
     return hit.transform ==target;
     
 }
+void Attack()
+{
+    switch(enemyType)
+    {
+        case EnemyType.Melee:
+            MeleeAttack();
+            break;
 
+        case EnemyType.Ranged:
+
+            if(!isBursting)
+            {
+                StartCoroutine(BurstFire());
+            }
+
+            break;
+
+        case EnemyType.Archer:
+
+            Shoot();
+
+            break;
+
+        case EnemyType.Tank:
+
+            break;
+    }
 }
+void Shoot()
+{
+    Debug.Log("SHOOT CALLED");
+    
+    GameObject projectile =
+        Instantiate(
+            projectilePrefab,
+            firePoint.position,
+            Quaternion.identity);
+
+    Vector2 direction =
+        (target.position -
+         firePoint.position).normalized;
+
+    Rigidbody2D rb =
+        projectile.GetComponent<Rigidbody2D>();
+
+    rb.linearVelocity =
+        direction * projectileSpeed;
+Debug.Log(projectile.transform.position);
+}
+IEnumerator BurstFire()
+{
+    isBursting = true;
+
+    for(int i = 0; i < bulletsPerBurst; i++)
+    {
+        Shoot();
+
+        yield return new WaitForSeconds(
+            burstDelay);
+    }
+
+    isBursting = false;
+}
+void MeleeAttack()
+{
+    PlayerCombat player =
+        target.GetComponent<PlayerCombat>();
+
+    if(player != null)
+    {
+        player.TakeDamage(meleeDamage);
+    }
+}
+
 }

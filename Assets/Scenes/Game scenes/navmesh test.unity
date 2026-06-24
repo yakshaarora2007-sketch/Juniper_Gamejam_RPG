@@ -173,6 +173,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::navmesh_enemy
   target: {fileID: 1190031131}
+  detectionRange: 7
+  attackRange: 1.5
+  attackCooldown: 1
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  losLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  memoryDuration: 3
 --- !u!212 &533025096
 SpriteRenderer:
   serializedVersion: 2

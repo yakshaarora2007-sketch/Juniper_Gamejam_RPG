@@ -12,6 +12,9 @@ public class Combat_enemy : MonoBehaviour
     [Header("Contact Damage")]
     [SerializeField] private float collisionDamage = 10f;
     [SerializeField] private float damageCooldown = 1f;
+    [Header("KnockBack")]
+
+    [SerializeField] float knockbackDistance = 2f;
 
     private float nextDamageTime;
 
@@ -26,24 +29,24 @@ public class Combat_enemy : MonoBehaviour
     }
 
     public void TakeDamage(float damage)
+{
+    Debug.Log("TAKE DAMAGE CALLED!");
+
+    health -= damage;
+
+    Debug.Log(gameObject.name + " HP: " + health);
+
+    if (healthbar != null)
     {
-        health -= damage;
-
-        if (health < 0)
-            health = 0;
-
-        if (healthbar != null)
-        {
-            healthbar.SetHealth(health);
-        }
-
-        Debug.Log(gameObject.name + " HP: " + health);
-
-        if (health <= 0)
-        {
-            Die();
-        }
+        healthbar.SetHealth(health);
     }
+
+    if (health <= 0)
+    {
+        Die();
+    }
+    Debug.Log("Healthbar is null? " + (healthbar == null));
+}
 
     private void OnCollisionStay2D(Collision2D collision)
     {
@@ -60,6 +63,9 @@ public class Combat_enemy : MonoBehaviour
             {
                 player.TakeDamage(collisionDamage);
 
+                        player.ApplyKnockback(
+                            transform.position,
+                            knockbackDistance);
                 nextDamageTime =
                     Time.time + damageCooldown;
             }
@@ -72,17 +78,7 @@ public class Combat_enemy : MonoBehaviour
 
         Destroy(gameObject);
     }
+
     
- private float timer;
-
-private void Update()
-{
-    timer += Time.deltaTime;
-
-    if(timer > 2f)
-    {
-        TakeDamage(10);
-        timer = 0f;
-    }
-}
+    
 }

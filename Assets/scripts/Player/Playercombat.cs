@@ -4,6 +4,8 @@ using System.Collections;
 
 public class PlayerCombat : MonoBehaviour
 {
+    private Rigidbody2D rb;
+    private Movement movement;
     [Header("References")]
     [SerializeField] private Transform attackPoint;
     [SerializeField] private Transform firePoint;
@@ -35,6 +37,9 @@ public class PlayerCombat : MonoBehaviour
 
     private void Start()
     {
+        rb = GetComponent<Rigidbody2D>();
+        movement = GetComponent<Movement>();
+        
         health = maxhealth;
 
         if (healthbar != null)
@@ -179,7 +184,36 @@ if (enemyHealth != null)
         Debug.Log("Player Died");
         Destroy(gameObject);
     }
+public void ApplyKnockback(
+    Vector2 sourcePosition,
+    float force)
+{
+    StartCoroutine(
+        KnockbackRoutine(
+            sourcePosition,
+            force));
+}
 
+IEnumerator KnockbackRoutine(
+    Vector2 sourcePosition,
+    float force)
+{
+    movement.isKnockedBack = true;
+
+    Vector2 direction =
+        ((Vector2)transform.position -
+         sourcePosition).normalized;
+
+    rb.linearVelocity = Vector2.zero;
+
+    rb.AddForce(
+        direction * force,
+        ForceMode2D.Impulse);
+
+    yield return new WaitForSeconds(0.2f);
+
+    movement.isKnockedBack = false;
+}
     private void OnDrawGizmosSelected()
     {
         if (attackPoint == null)

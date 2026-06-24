@@ -1,9 +1,9 @@
 using UnityEngine;
 
-public class canvasfixrotation : MonoBehaviour
+public class HealthBarFollow : MonoBehaviour
 {
     void LateUpdate()
     {
-        transform.localRotation = Quaternion.identity;
+        transform.rotation = Quaternion.identity;
     }
 }

@@ -119,11 +119,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
-<<<<<<< Updated upstream
 --- !u!1 &18746032
-=======
---- !u!1 &1278133218
->>>>>>> Stashed changes
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -131,7 +127,6 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-<<<<<<< Updated upstream
   - component: {fileID: 18746033}
   m_Layer: 0
   m_Name: ENEMY_Types
@@ -2032,6 +2027,7 @@ MonoBehaviour:
   healthbar: {fileID: 1776410568}
   collisionDamage: 0
   damageCooldown: 2
+  knockbackDistance: 2
 --- !u!195 &804310697
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -2066,24 +2062,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca3307a538ff521429b701c4a10f3fb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::navmesh_enemy
-  projectilePrefab: {fileID: 4591454390291401451, guid: 25d1466c52c4e71438c46de88f15a3ac, type: 3}
-  firePoint: {fileID: 1769483944}
+  projectilePrefab: {fileID: 0}
+  firePoint: {fileID: 0}
   projectileSpeed: 10
   target: {fileID: 895039749}
-  detectionRange: 10
-  attackRange: 6
-  attackCooldown: 1.7
+  detectionRange: 7
+  attackRange: 1.5
+  attackCooldown: 1
   obstacleLayer:
     serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 0
   losLayer:
     serializedVersion: 2
-    m_Bits: 1280
+    m_Bits: 0
   memoryDuration: 3
   bulletsPerBurst: 3
   burstDelay: 0.15
-  meleeDamage: 0
-  enemyType: 1
+  meleeDamage: 10
+  enemyType: 0
 --- !u!1 &843673453
 GameObject:
   m_ObjectHideFlags: 0
@@ -2128,11 +2124,6 @@ GameObject:
   - component: {fileID: 856864065}
   - component: {fileID: 856864064}
   - component: {fileID: 856864067}
-=======
-  - component: {fileID: 1278133221}
-  - component: {fileID: 1278133220}
-  - component: {fileID: 1278133219}
->>>>>>> Stashed changes
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -2140,35 +2131,21 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
-<<<<<<< Updated upstream
 --- !u!81 &856864064
-=======
---- !u!81 &1278133219
->>>>>>> Stashed changes
 AudioListener:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-<<<<<<< Updated upstream
   m_GameObject: {fileID: 856864063}
   m_Enabled: 1
 --- !u!20 &856864065
-=======
-  m_GameObject: {fileID: 1278133218}
-  m_Enabled: 1
---- !u!20 &1278133220
->>>>>>> Stashed changes
 Camera:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-<<<<<<< Updated upstream
   m_GameObject: {fileID: 856864063}
-=======
-  m_GameObject: {fileID: 1278133218}
->>>>>>> Stashed changes
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
@@ -2213,21 +2190,13 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
-<<<<<<< Updated upstream
 --- !u!4 &856864066
-=======
---- !u!4 &1278133221
->>>>>>> Stashed changes
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-<<<<<<< Updated upstream
   m_GameObject: {fileID: 856864063}
-=======
-  m_GameObject: {fileID: 1278133218}
->>>>>>> Stashed changes
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -10}
@@ -2236,7 +2205,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-<<<<<<< Updated upstream
 --- !u!114 &856864067
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2480,22 +2448,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bbb095aa7880ef54bb40b6f2ad04ecb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  attackPoint: {fileID: 781908461}
+  hammerPoint: {fileID: 781908461}
   firePoint: {fileID: 511382057}
   sword: {fileID: 843673454}
-  attackRange: 0.15
-  attackAngle: 90
-  swordDamage: 10
+  tridentLeftPoint: {fileID: 0}
+  tridentCenterPoint: {fileID: 0}
+  tridentRightPoint: {fileID: 0}
+  arrowPrefab: {fileID: 4591454390291401451, guid: 4750a3072bb0a1f429a1a9d03507c9f4, type: 3}
+  bulletPrefab: {fileID: 0}
+  shurikenPrefab: {fileID: 0}
+  spearPrefab: {fileID: 0}
+  shieldPrefab: {fileID: 0}
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
-  swingAngle: 120
-  swingDuration: 0.75
-  arrowPrefab: {fileID: 4591454390291401451, guid: 4750a3072bb0a1f429a1a9d03507c9f4, type: 3}
-  arrowSpeed: 10
-  arrowWindupTime: 0.5
   health: 0
-  maxhealth: 100
+  maxhealth: 1000
   healthbar: {fileID: 569486826}
 --- !u!114 &895039746
 MonoBehaviour:
@@ -2509,6 +2477,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d041077c3141cb247accf9ba2707ae69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  isKnockedBack: 0
   moveSpeed: 10
 --- !u!114 &895039747
 MonoBehaviour:
@@ -4137,15 +4106,15 @@ MonoBehaviour:
   firePoint: {fileID: 0}
   projectileSpeed: 10
   target: {fileID: 895039749}
-  detectionRange: 10
-  attackRange: 2
-  attackCooldown: 3
+  detectionRange: 7
+  attackRange: 1.5
+  attackCooldown: 1
   obstacleLayer:
     serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 0
   losLayer:
     serializedVersion: 2
-    m_Bits: 1280
+    m_Bits: 0
   memoryDuration: 3
   bulletsPerBurst: 3
   burstDelay: 0.15
@@ -4214,6 +4183,7 @@ MonoBehaviour:
   healthbar: {fileID: 2018924816}
   collisionDamage: 0
   damageCooldown: 2
+  knockbackDistance: 2
 --- !u!1 &1436334498
 GameObject:
   m_ObjectHideFlags: 0
@@ -4932,8 +4902,9 @@ MonoBehaviour:
   health: 0
   maxhealth: 100
   healthbar: {fileID: 1315793025}
-  collisionDamage: 15
+  collisionDamage: 20
   damageCooldown: 2
+  knockbackDistance: 2
 --- !u!195 &1733751599
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -4945,7 +4916,7 @@ NavMeshAgent:
   m_AgentTypeID: 0
   m_Radius: 0.5
   m_Speed: 2
-  m_Acceleration: 4
+  m_Acceleration: 1
   avoidancePriority: 50
   m_AngularSpeed: 120
   m_StoppingDistance: 0
@@ -4972,20 +4943,20 @@ MonoBehaviour:
   firePoint: {fileID: 0}
   projectileSpeed: 10
   target: {fileID: 895039749}
-  detectionRange: 10
-  attackRange: 1
+  detectionRange: 7
+  attackRange: 1.5
   attackCooldown: 1
   obstacleLayer:
     serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 0
   losLayer:
     serializedVersion: 2
-    m_Bits: 1280
+    m_Bits: 0
   memoryDuration: 3
   bulletsPerBurst: 3
   burstDelay: 0.15
-  meleeDamage: 0
-  enemyType: 2
+  meleeDamage: 10
+  enemyType: 0
 --- !u!1 &1742693320
 GameObject:
   m_ObjectHideFlags: 0
@@ -5539,6 +5510,7 @@ MonoBehaviour:
   healthbar: {fileID: 46211382}
   collisionDamage: 0
   damageCooldown: 2
+  knockbackDistance: 2
 --- !u!195 &1919355426
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -5573,24 +5545,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca3307a538ff521429b701c4a10f3fb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::navmesh_enemy
-  projectilePrefab: {fileID: 4591454390291401451, guid: cb914004e622aae40863f381533703c9, type: 3}
-  firePoint: {fileID: 1505600442}
+  projectilePrefab: {fileID: 0}
+  firePoint: {fileID: 0}
   projectileSpeed: 10
   target: {fileID: 895039749}
-  detectionRange: 10
-  attackRange: 6
+  detectionRange: 7
+  attackRange: 1.5
   attackCooldown: 1
   obstacleLayer:
     serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 0
   losLayer:
     serializedVersion: 2
-    m_Bits: 1280
+    m_Bits: 0
   memoryDuration: 3
-  bulletsPerBurst: 0
-  burstDelay: 0
-  meleeDamage: 0
-  enemyType: 3
+  bulletsPerBurst: 3
+  burstDelay: 0.15
+  meleeDamage: 10
+  enemyType: 0
 --- !u!4 &1919355428
 Transform:
   m_ObjectHideFlags: 0
@@ -5978,19 +5950,13 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2096711837}
   m_CullTransparentMesh: 1
-=======
->>>>>>> Stashed changes
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-<<<<<<< Updated upstream
   - {fileID: 856864066}
   - {fileID: 691423772}
   - {fileID: 1135916510}
   - {fileID: 895039749}
   - {fileID: 863763614}
   - {fileID: 18746033}
-=======
-  - {fileID: 1278133221}
->>>>>>> Stashed changes

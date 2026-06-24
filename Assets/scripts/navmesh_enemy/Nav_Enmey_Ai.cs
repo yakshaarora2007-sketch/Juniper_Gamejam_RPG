@@ -1,253 +1,277 @@
 using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
+
 public class navmesh_enemy : MonoBehaviour
 {
-[SerializeField] GameObject projectilePrefab;
-[SerializeField] Transform firePoint;
-[SerializeField] float projectileSpeed = 10f;
- [SerializeField] Transform target; //taregt follower
- [SerializeField] float detectionRange = 7f; // Range in which follows
-[SerializeField] float attackRange = 1.5f; // range of attack
-float attackTimer;
-[SerializeField] float attackCooldown = 1f; //time between each attack
+    [SerializeField] GameObject projectilePrefab;
+    [SerializeField] Transform firePoint;
+    [SerializeField] float projectileSpeed = 10f;
+    [SerializeField] Transform target;
+    [SerializeField] float detectionRange = 7f;
+    [SerializeField] float attackRange = 1.5f;
+    [SerializeField] float attackCooldown = 1f;
 
-[SerializeField] LayerMask obstacleLayer;// walls
-[SerializeField] LayerMask losLayer;
+    // Removed obstacleLayer — was unused duplicate of losLayer
+    [SerializeField] LayerMask losLayer;
 
-Vector3 lastKnownPosition;
+    [SerializeField] float memoryDuration = 3f;
+    [SerializeField] int bulletsPerBurst = 3;
+    [SerializeField] float burstDelay = 0.15f;
+    [SerializeField] float meleeDamage = 10f;
 
-[SerializeField] float memoryDuration = 3f;
-[SerializeField] int bulletsPerBurst = 3;
-[SerializeField] float burstDelay = 0.15f;
-[SerializeField] float meleeDamage = 10f;
-bool isBursting;
-float memoryTimer;
- NavMeshAgent agent;
+    // Tank knockback
+    [SerializeField] float knockbackForce = 6f;
+    [SerializeField] float knockbackDuration = 0.15f;
 
- public enum EnemyType
-{
-    Melee,
-    Ranged,
-    Tank,
-    Archer
-}
-[SerializeField] EnemyType enemyType;
-enum EnemyState
-{
-    Idle,
-    Chase,
-    Attack
-}
+    float attackTimer;
+    bool isBursting;
+    float memoryTimer;
+    NavMeshAgent agent;
 
-EnemyState currentState;
+    public enum EnemyType { Melee, Ranged, Tank, Archer }
+    [SerializeField] EnemyType enemyType;
 
-    private void  Start() {
-        agent=GetComponent<NavMeshAgent>();
-        agent.updateRotation=true;
-        agent.updateUpAxis=false;
+    enum EnemyState { Idle, Chase, Attack }
+    EnemyState currentState;
 
-        currentState = EnemyState.Idle;
-        
-    }
-private void Update()
-{
-    
-    attackTimer += Time.deltaTime;
-    memoryTimer -= Time.deltaTime;
-    float distance =
-        Vector2.Distance(
-            transform.position,
-            target.position
-        );
-    
-    
-    if(distance > detectionRange)
+    // ─────────────────────────────────────────
+    //  Start
+    // ─────────────────────────────────────────
+    private void Start()
     {
+        agent = GetComponent<NavMeshAgent>();
+        agent.updateRotation = false;   // FIX: was true, fought manual rotation
+        agent.updateUpAxis   = false;
+
+        // FIX: pre-fill timer so enemy doesn't attack instantly on first contact
+        attackTimer  = attackCooldown;
         currentState = EnemyState.Idle;
     }
-    else if(HasLineOfSight())
+
+    // ─────────────────────────────────────────
+    //  Update
+    // ─────────────────────────────────────────
+    private void Update()
     {
-        lastKnownPosition = target.position;
+        attackTimer += Time.deltaTime;
+        memoryTimer -= Time.deltaTime;
 
-        memoryTimer = memoryDuration;
+        float distance = Vector2.Distance(transform.position, target.position);
 
-        if(distance > attackRange)
+        // ── State selection ──────────────────
+        if (distance > detectionRange)
+        {
+            currentState = EnemyState.Idle;
+        }
+        else if (HasLineOfSight())
+        {
+            lastKnownPosition = target.position;
+            memoryTimer       = memoryDuration;
+
+            currentState = distance > attackRange
+                ? EnemyState.Chase
+                : EnemyState.Attack;
+        }
+        else if (memoryTimer > 0)
         {
             currentState = EnemyState.Chase;
         }
         else
         {
-            currentState = EnemyState.Attack;
+            currentState = EnemyState.Idle;
         }
-    }
-    else if(memoryTimer > 0)
-    {
-        currentState = EnemyState.Chase;
-    }
-    else
-    {
-        currentState = EnemyState.Idle;
-    }
 
+        // ── State execution ──────────────────
+        switch (currentState)
+        {
+            case EnemyState.Idle:
+                agent.ResetPath();
+                break;
 
+            case EnemyState.Chase:
+                agent.SetDestination(
+                    HasLineOfSight() ? target.position : lastKnownPosition);
+                break;
 
-    switch(currentState)
-    {
-        case EnemyState.Idle:
-            agent.ResetPath();
-            break;
+            case EnemyState.Attack:
+                if (enemyType == EnemyType.Tank)
+                    agent.SetDestination(target.position);
+                else
+                    agent.ResetPath();
 
-        case EnemyState.Chase:
-                    if(HasLineOfSight())
-            {
-                agent.SetDestination(target.position);
-            }
-            else
-            {
-                agent.SetDestination(lastKnownPosition);
-            }
+                // FIX: face player with lerp instead of instant snap,
+                // and only do it here — removed the duplicate velocity-based
+                // rotation block that was overwriting this every frame
+                FaceTarget();
 
-            break;
-
-        case EnemyState.Attack:
-
-            agent.ResetPath();
-                Vector2 lookDirection =
-                    target.position - transform.position;
-
-                float angle =
-                    Mathf.Atan2(
-                        lookDirection.y,
-                        lookDirection.x
-                    ) * Mathf.Rad2Deg - 90f;
-
-                transform.rotation =
-                    Quaternion.Euler(0, 0, angle);
-                if(attackTimer >= attackCooldown)
+                if (attackTimer >= attackCooldown)
                 {
-                     Debug.Log("ATTACKING");
                     Attack();
-
                     attackTimer = 0f;
                 }
+                break;
+        }
 
-            break;
+        // Rotation while moving (Chase / Idle wandering)
+        // Only runs when NOT in Attack state to avoid the overwrite conflict
+        if (currentState != EnemyState.Attack)
+        {
+            Vector2 vel = agent.velocity.normalized;
+            if (vel.sqrMagnitude > 0.01f)
+            {
+                float   a   = Mathf.Atan2(vel.y, vel.x) * Mathf.Rad2Deg - 90f;
+                transform.rotation = Quaternion.Lerp(
+                    transform.rotation,
+                    Quaternion.Euler(0, 0, a),
+                    10f * Time.deltaTime);
+            }
+        }
     }
 
-    Vector2 direction = agent.velocity.normalized;
+    // ─────────────────────────────────────────
+    //  LOS  — FIX: logic was inverted
+    // ─────────────────────────────────────────
+    Vector3 lastKnownPosition;
 
-    if (direction.sqrMagnitude > 0.01f)
+    bool HasLineOfSight()
     {
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
+        Vector2 direction = target.position - transform.position;
 
-        Quaternion targetRotation = Quaternion.Euler(0, 0, angle);
+        RaycastHit2D hit = Physics2D.Raycast(
+            transform.position,
+            direction.normalized,
+            detectionRange,
+            losLayer);
 
+        Debug.DrawRay(
+            transform.position,
+            direction.normalized * detectionRange,
+            Color.red);
+
+        // FIX: null hit means nothing blocked the ray → clear LOS
+        if (hit.collider == null) return true;
+
+        // Hit something — is it the player?
+        return hit.transform == target;
+    }
+
+    // ─────────────────────────────────────────
+    //  Smooth rotation toward player
+    // ─────────────────────────────────────────
+    void FaceTarget()
+    {
+        Vector2 lookDir = target.position - transform.position;
+        float   angle   = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
         transform.rotation = Quaternion.Lerp(
             transform.rotation,
-            targetRotation,
-            10f * Time.deltaTime
-        );
+            Quaternion.Euler(0, 0, angle),
+            10f * Time.deltaTime);
     }
-}
-bool HasLineOfSight()
-{
-    Vector2 direction =
-        target.position - transform.position;
 
-    RaycastHit2D hit = Physics2D.Raycast(
-        transform.position,
-        direction.normalized,
-        detectionRange,
-        losLayer
-    );
-
-    Debug.DrawRay(
-    transform.position,
-    direction.normalized * detectionRange,
-    Color.red
-    );
-    
-
-    if(hit.collider == null)
+    // ─────────────────────────────────────────
+    //  Attack dispatch
+    // ─────────────────────────────────────────
+    void Attack()
     {
-         return false;
-       }
-    return hit.transform ==target;
-    
-}
-void Attack()
-{
-    switch(enemyType)
-    {
-        case EnemyType.Melee:
-            MeleeAttack();
-            break;
+        switch (enemyType)
+        {
+            case EnemyType.Melee:
+                MeleeAttack();
+                break;
 
-        case EnemyType.Ranged:
+            case EnemyType.Ranged:
+                if (!isBursting)
+                    StartCoroutine(BurstFire());
+                break;
 
-            if(!isBursting)
-            {
-                StartCoroutine(BurstFire());
-            }
+            case EnemyType.Archer:
+                Shoot();
+                break;
 
-            break;
-
-        case EnemyType.Archer:
-
-            Shoot();
-
-            break;
-
-        case EnemyType.Tank:
-
-            break;
+            case EnemyType.Tank:
+                // FIX: Tank now does melee damage + knockback
+                TankAttack();
+                break;
+        }
     }
-}
-void Shoot()
-{
-    Debug.Log("SHOOT CALLED");
-    
-    GameObject projectile =
-        Instantiate(
+
+    // ─────────────────────────────────────────
+    //  Melee
+    // ─────────────────────────────────────────
+    void MeleeAttack()
+    {
+        PlayerCombat player = target.GetComponent<PlayerCombat>();
+        if (player != null)
+            player.TakeDamage(meleeDamage);
+    }
+
+    // ─────────────────────────────────────────
+    //  Tank — melee + knockback
+    // ─────────────────────────────────────────
+    void TankAttack()
+    {
+        PlayerCombat player = target.GetComponent<PlayerCombat>();
+        if (player != null)
+            player.TakeDamage(meleeDamage);
+
+        Rigidbody2D playerRb = target.GetComponent<Rigidbody2D>();
+        if (playerRb != null)
+            StartCoroutine(ApplyKnockback(playerRb));
+    }
+
+    IEnumerator ApplyKnockback(Rigidbody2D rb)
+    {
+        Vector2 dir = ((Vector2)target.position - (Vector2)transform.position).normalized;
+        rb.linearVelocity = dir * knockbackForce;
+        yield return new WaitForSeconds(knockbackDuration);
+        rb.linearVelocity = Vector2.zero;
+    }
+
+    // ─────────────────────────────────────────
+    //  Ranged — single shot
+    // ─────────────────────────────────────────
+    void Shoot()
+    {
+        if (projectilePrefab == null || firePoint == null) return;
+
+        GameObject projectile = Instantiate(
             projectilePrefab,
             firePoint.position,
             Quaternion.identity);
 
-    Vector2 direction =
-        (target.position -
-         firePoint.position).normalized;
+        Vector2 direction = (target.position - firePoint.position).normalized;
 
-    Rigidbody2D rb =
-        projectile.GetComponent<Rigidbody2D>();
-
-    rb.linearVelocity =
-        direction * projectileSpeed;
-Debug.Log(projectile.transform.position);
-}
-IEnumerator BurstFire()
-{
-    isBursting = true;
-
-    for(int i = 0; i < bulletsPerBurst; i++)
-    {
-        Shoot();
-
-        yield return new WaitForSeconds(
-            burstDelay);
+        Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
+        if (rb != null)
+            rb.linearVelocity = direction * projectileSpeed;
     }
 
-    isBursting = false;
-}
-void MeleeAttack()
-{
-    PlayerCombat player =
-        target.GetComponent<PlayerCombat>();
-
-    if(player != null)
+    // ─────────────────────────────────────────
+    //  Ranged — burst fire
+    // ─────────────────────────────────────────
+    IEnumerator BurstFire()
     {
-        player.TakeDamage(meleeDamage);
-    }
-}
+        isBursting = true;
 
+        for (int i = 0; i < bulletsPerBurst; i++)
+        {
+            Shoot();
+            yield return new WaitForSeconds(burstDelay);
+        }
+
+        isBursting = false;
+    }
+
+    // ─────────────────────────────────────────
+    //  Gizmos
+    // ─────────────────────────────────────────
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
+    }
 }

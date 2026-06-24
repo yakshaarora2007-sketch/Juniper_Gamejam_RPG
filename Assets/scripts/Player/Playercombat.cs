@@ -4,6 +4,8 @@ using System.Collections;
 
 public class PlayerCombat : MonoBehaviour
 {
+    private Movement movement;
+    private Rigidbody2D rb;
     [Header("References")]
     [SerializeField] private Transform hammerPoint;
     [SerializeField] private Transform firePoint;
@@ -35,6 +37,7 @@ private Coroutine reloadRoutine;
 
     private void Start()
     {
+        movement = GetComponent<Movement>();
         weaponManager =
             GetComponentInChildren<WeaponManager>();
 
@@ -45,6 +48,7 @@ private Coroutine reloadRoutine;
 
         if (healthbar != null)
         {
+            movement = GetComponent<Movement>();
             healthbar.SetMaxHealth(maxhealth);
         }
 
@@ -717,5 +721,8 @@ private void UpdateGun()
         gun.currentAmmo +
         "/" +
         gun.magazineSize);
+    
+
 }
+
 }

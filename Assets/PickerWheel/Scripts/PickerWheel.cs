@@ -69,17 +69,22 @@ namespace EasyUI.PickerWheelUI
                 "Chosen Piece = " +
                 chosenPiece.Label);
 
-            float centerAngle =
-                -(chosenIndex * pieceAngle);
+          // Aim for the CENTER of the sector
+float centerAngle =
+    -((chosenIndex * pieceAngle) +
+      (pieceAngle * 0.5f));
 
-            float randomOffset =
-                Random.Range(
-                    -pieceAngle * 0.4f,
-                     pieceAngle * 0.4f);
+// Disable randomness for debugging
+float randomOffset = 0f;
 
-            float finalAngle =
-                centerAngle +
-                randomOffset;
+float finalAngle =
+    centerAngle +
+    randomOffset;
+
+Debug.Log(
+    $"Target Piece = {chosenPiece.Label} | " +
+    $"Index = {chosenIndex} | " +
+    $"CenterAngle = {centerAngle}");
 
             float currentRotation =
                 wheelCircle.eulerAngles.z;
@@ -207,41 +212,64 @@ private void CreatePiece(int index)
             wheelPiecePrefab,
             wheelPiecesParent);
 
-    RectTransform rt =
-        obj.transform.GetChild(0)
-        .GetComponent<RectTransform>();
+    Transform holder =
+        obj.transform.GetChild(0);
 
-    float radius = 130f;
-
-    float angle =
-        index * pieceAngle * Mathf.Deg2Rad;
-
-  
-
-rt.localPosition = Vector3.zero;
-
-obj.transform.Rotate(
-    Vector3.forward,
-    -(index * pieceAngle));
-rt.RotateAround(
-    wheelPiecesParent.position,
-    Vector3.back,
-    pieceAngle * index);
-   
-
-    rt.GetChild(0)
+    holder.GetChild(0)
         .GetComponent<Image>()
         .sprite = piece.Icon;
 
-    rt.GetChild(1)
+    holder.GetChild(1)
         .GetComponent<Text>()
         .text = piece.Label;
 
-    rt.GetChild(2)
+    holder.GetChild(2)
         .GetComponent<Text>()
         .text = piece.Amount.ToString();
-}
 
+    RectTransform rt =
+        holder.GetComponent<RectTransform>();
+
+    // Distance from center
+
+
+    // Center of the sector
+    float sectorCenter =
+        (index * pieceAngle) +
+        (pieceAngle * 0.5f);
+
+    float radians =
+        sectorCenter * Mathf.Deg2Rad;
+
+float radius =
+    wheelCircle
+        .GetComponent<RectTransform>()
+        .rect.width * 0.42f;
+
+Vector2 position =
+    new Vector2(
+        Mathf.Sin(radians),
+        Mathf.Cos(radians))
+    * radius;
+    rt.localPosition = position;
+
+    // Keep icon/text readable
+    rt.localRotation =
+    Quaternion.Euler(
+        0f,
+        0f,
+        -sectorCenter);
+
+    // Optional scaling
+    rt.localScale =
+        Vector3.one * 0.8f;
+        if (sectorCenter > 90f &&
+    sectorCenter < 270f)
+{
+    rt.localRotation *=
+        Quaternion.identity ;
+}
+}
         private void CreateLine(int index)
         {
             Transform line =

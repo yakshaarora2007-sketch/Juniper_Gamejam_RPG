@@ -46,6 +46,7 @@ public class WeaponWheelManager : MonoBehaviour
 
       
         rangedWheel.gameObject.SetActive(true);
+        meleeWheel.gameObject.SetActive(false);
 
         StartRangedWheel();
     }
@@ -66,7 +67,7 @@ public class WeaponWheelManager : MonoBehaviour
 
         EquipWeapons();
          
-         
+         rangedWheel.gameObject.SetActive(false);
     }
 
     private void EquipWeapons()

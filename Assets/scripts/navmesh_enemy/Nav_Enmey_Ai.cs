@@ -54,6 +54,11 @@ public class navmesh_enemy : MonoBehaviour
     // ─────────────────────────────────────────
     private void Update()
     {
+         if (!RoundManager.RoundRunning)
+    {
+        agent.ResetPath();
+        return;
+    }
         attackTimer += Time.deltaTime;
         memoryTimer -= Time.deltaTime;
 
@@ -233,6 +238,8 @@ public class navmesh_enemy : MonoBehaviour
     // ─────────────────────────────────────────
     void Shoot()
     {
+         if (!RoundManager.RoundRunning)
+        return;
         if (projectilePrefab == null || firePoint == null) return;
 
         GameObject projectile = Instantiate(
@@ -250,18 +257,25 @@ public class navmesh_enemy : MonoBehaviour
     // ─────────────────────────────────────────
     //  Ranged — burst fire
     // ─────────────────────────────────────────
-    IEnumerator BurstFire()
+   IEnumerator BurstFire()
+{
+    if (!RoundManager.RoundRunning)
+        yield break;
+
+    isBursting = true;
+
+    for (int i = 0; i < bulletsPerBurst; i++)
     {
-        isBursting = true;
+        if (!RoundManager.RoundRunning)
+            yield break;
 
-        for (int i = 0; i < bulletsPerBurst; i++)
-        {
-            Shoot();
-            yield return new WaitForSeconds(burstDelay);
-        }
+        Shoot();
 
-        isBursting = false;
+        yield return new WaitForSeconds(burstDelay);
     }
+
+    isBursting = false;
+}
 
     // ─────────────────────────────────────────
     //  Gizmos

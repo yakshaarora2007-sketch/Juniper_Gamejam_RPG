@@ -3,7 +3,6 @@ using UnityEngine.InputSystem;
 
 public class Movement : MonoBehaviour
 {
-
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
 
@@ -19,36 +18,34 @@ public class Movement : MonoBehaviour
         animationController =
             GetComponent<PlayerAnimationController>();
 
+        animationController.UpdateMovement(0);
+    }
+
+    private void FixedUpdate()
+    {
+        if (!RoundManager.RoundRunning)
+        {
+            rb.linearVelocity = Vector2.zero;
+            animationController.UpdateMovement(0);
+            return;
+        }
+
+        rb.linearVelocity =
+            moveInput * moveSpeed;
+
         animationController.UpdateMovement(
             rb.linearVelocity.magnitude);
     }
 
-    private void FixedUpdate()
-<<<<<<< HEAD
-{
-           rb.linearVelocity = moveInput * moveSpeed;
-=======
-    {
-        
-
-    rb.linearVelocity = moveInput * moveSpeed;
-
-    Debug.Log("Velocity = " + rb.linearVelocity);
-    Debug.Log("Magnitude = " + rb.linearVelocity.magnitude);
-
-    animationController.UpdateMovement(rb.linearVelocity.magnitude);
-
-    }
->>>>>>> yaksha
-
-}
     public void Move(InputAction.CallbackContext context)
     {
-  
+        if (!RoundManager.RoundRunning)
+        {
+            moveInput = Vector2.zero;
+            return;
+        }
 
-    moveInput = context.ReadValue<Vector2>();
-
-    Debug.Log("Input = " + moveInput);
-
+        moveInput =
+            context.ReadValue<Vector2>();
     }
 }

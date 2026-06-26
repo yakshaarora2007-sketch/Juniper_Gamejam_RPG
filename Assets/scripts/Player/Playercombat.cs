@@ -37,12 +37,11 @@ private Coroutine reloadRoutine;
 
     private void Start()
     {
-<<<<<<< HEAD
-        movement = GetComponent<Movement>();
-=======
-        animationController =
+
+      movement = GetComponent<Movement>();
+
+animationController =
     GetComponent<PlayerAnimationController>();
->>>>>>> yaksha
         weaponManager =
             GetComponentInChildren<WeaponManager>();
 
@@ -62,6 +61,8 @@ private Coroutine reloadRoutine;
 
     public void MeleeAttack(InputAction.CallbackContext context)
     {
+        if (!RoundManager.RoundRunning)
+    return;
         if (!context.performed)
             return;
 
@@ -118,7 +119,8 @@ private void DamageTridentPoint(
     public void RangedAttack(InputAction.CallbackContext context)
     {
         
-
+        if (!RoundManager.RoundRunning)
+    return;
         switch (weaponManager.currentRangedWeapon.weaponID)
         {
             case WeaponID.Bow:
@@ -597,6 +599,8 @@ if (tridentRightPoint != null)
    private void Update()
    
 {
+     if (!RoundManager.RoundRunning)
+        return;
     Gun gun =
     weaponManager.currentRangedWeapon
     as Gun;
@@ -721,9 +725,6 @@ private void UpdateGun()
     
 
 }
-<<<<<<< HEAD
-
-=======
 public bool IsAttackingAnimation { get; private set; }
 
 public void BeginAttackRotation()
@@ -735,5 +736,4 @@ public void EndAttackRotation()
 {
     IsAttackingAnimation = false;
 }
->>>>>>> yaksha
 }

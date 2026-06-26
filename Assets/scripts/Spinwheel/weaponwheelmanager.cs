@@ -68,6 +68,7 @@ public class WeaponWheelManager : MonoBehaviour
         EquipWeapons();
          
          rangedWheel.gameObject.SetActive(false);
+         RoundManager.Instance.StartCountdown();
     }
 
     private void EquipWeapons()

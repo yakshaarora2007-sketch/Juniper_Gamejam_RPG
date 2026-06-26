@@ -2050,7 +2050,7 @@ Transform:
   m_GameObject: {fileID: 804310693}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -3.02, y: 4.83, z: 0}
+  m_LocalPosition: {x: -6.36, y: 2.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2163,7 +2163,7 @@ MonoBehaviour:
   firePoint: {fileID: 1769483944}
   projectileSpeed: 10
   target: {fileID: 130850207}
-  detectionRange: 7
+  detectionRange: 9
   attackRange: 6
   attackCooldown: 1
   losLayer:
@@ -4558,8 +4558,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -674.7346, y: -372.4}
-  m_SizeDelta: {x: 382.6814, y: 63.5431}
+  m_AnchoredPosition: {x: -738.33386, y: -482.14462}
+  m_SizeDelta: {x: 356.5491, y: 54.8323}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1495034520
 MonoBehaviour:

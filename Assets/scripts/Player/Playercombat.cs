@@ -9,7 +9,7 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] private Transform firePoint;
     [SerializeField] private Transform sword;
     private float nextAttackTime;
-
+private PlayerAnimationController animationController;
    [Header("Trident")]
 [SerializeField] private Transform tridentLeftPoint;
 [SerializeField] private Transform tridentCenterPoint;
@@ -35,6 +35,8 @@ private Coroutine reloadRoutine;
 
     private void Start()
     {
+        animationController =
+    GetComponent<PlayerAnimationController>();
         weaponManager =
             GetComponentInChildren<WeaponManager>();
 
@@ -63,23 +65,23 @@ private Coroutine reloadRoutine;
        switch (weaponManager.currentMeleeWeapon.weaponID)
         {
             case WeaponID.Sword:
-                SwordAttack();
+            animationController.PlaySwordAttack();
                 break;
 
             case WeaponID.Hammer:
-                HammerAttack();
+            animationController.PlayHammerAttack();
                 break;
 
             case WeaponID.Trident:
-                TridentAttack();
+                animationController.PlayTridentAttack();
                 break;
 
             case WeaponID.Spear:
-                SpearSlash();
+                animationController.PlaySpearMelee();
                 break;
 
             case WeaponID.ReturningShield:
-                ShieldBash();
+                animationController.PlayShieldMelee();
                 break;
         }
     }
@@ -121,25 +123,28 @@ private void DamageTridentPoint(
     if (context.started)
     {
         gunTriggerHeld = true;
+        animationController.RaiseGun();
     }
 
     if (context.canceled)
     {
         gunTriggerHeld = false;
+        // LowerGun removed - animator returns automatically
     }
 
     break;
 
             case WeaponID.Shuriken:
-                ShurikenThrow();
+               animationController.PlayShurikenAttack();
                 break;
 
             case WeaponID.Spear:
-                ThrowSpear();
+                animationController.PlaySpearThrow();
+
                 break;
 
             case WeaponID.ReturningShield:
-                ThrowShield();
+                animationController.PlayShieldThrow();
                 break;
         }
     }
@@ -166,43 +171,37 @@ private void BowShoot(
 
     if (bow == null)
         return;
+if (context.started)
+{
+    bow.isDrawing = true;
+    bow.bowReady = false;
+    bow.drawStartTime = Time.time;
 
-    if (context.started)
+    animationController.StartBowDraw();
+
+    Debug.Log("Started Drawing");
+}
+if (context.canceled)
+{
+    bow.isDrawing = false;
+
+    if (!bow.bowReady)
     {
-        bow.isDrawing = true;
-        bow.bowReady = false;
-        bow.drawStartTime = Time.time;
+       
 
-        Debug.Log("Started Drawing");
+        Debug.Log(
+            "Released Too Early");
+
+        return;
     }
 
-    if (context.canceled)
-    {
-        bow.isDrawing = false;
+    animationController.ReleaseBow();
 
-        if (!bow.bowReady)
-        {
-            Debug.Log("Released Too Early");
-            return;
-        }
-
-        GameObject arrow =
-            Instantiate(
-                arrowPrefab,
-                firePoint.position,
-                firePoint.rotation);
-
-        Rigidbody2D rb =
-            arrow.GetComponent<Rigidbody2D>();
-
-        rb.linearVelocity =
-            -firePoint.up *
-            bow.projectileSpeed;
-
-        bow.bowReady = false;
-
-        Debug.Log("Arrow Fired");
-    }
+    GameObject arrow =
+        Instantiate(
+            arrowPrefab,
+            firePoint.position,
+            firePoint.rotation);}
 }
 private void HammerAttack()
 {
@@ -520,11 +519,30 @@ private void ThrowShield()
         }
     }
 
-    private void Die()
-    {
-        Destroy(gameObject);
-    }
+private void Die()
+{
+    animationController.PlayDeath();
 
+    Rigidbody2D rb =
+        GetComponent<Rigidbody2D>();
+
+    if (rb != null)
+        rb.linearVelocity = Vector2.zero;
+
+    Movement movement =
+        GetComponent<Movement>();
+
+    if (movement != null)
+        movement.enabled = false;
+
+    PlayerInput input =
+        GetComponent<PlayerInput>();
+
+    if (input != null)
+        input.enabled = false;
+
+    enabled = false;
+}
     private void OnDrawGizmosSelected()
     {
        
@@ -592,37 +610,7 @@ if (gun != null)
 }
     UpdateGun();
     UpdateBow();
-    if (Keyboard.current.digit1Key.wasPressedThisFrame)
-        weaponManager.EquipWeapon(
-            WeaponID.Sword);
-
-    if (Keyboard.current.digit2Key.wasPressedThisFrame)
-        weaponManager.EquipWeapon(
-            WeaponID.Hammer);
-
-    if (Keyboard.current.digit3Key.wasPressedThisFrame)
-        weaponManager.EquipWeapon(
-            WeaponID.Trident);
-
-    if (Keyboard.current.digit4Key.wasPressedThisFrame)
-        weaponManager.EquipWeapon(
-            WeaponID.Bow);
-
-    if (Keyboard.current.digit5Key.wasPressedThisFrame)
-        weaponManager.EquipWeapon(
-            WeaponID.Gun);
-
-    if (Keyboard.current.digit6Key.wasPressedThisFrame)
-        weaponManager.EquipWeapon(
-            WeaponID.Shuriken);
-
-    if (Keyboard.current.digit7Key.wasPressedThisFrame)
-        weaponManager.EquipWeapon(
-            WeaponID.Spear);
-
-    if (Keyboard.current.digit8Key.wasPressedThisFrame)
-        weaponManager.EquipWeapon(
-            WeaponID.ReturningShield);
+    
 }
 
 private IEnumerator SwordDamageWindow(
@@ -652,6 +640,9 @@ private void UpdateBow()
         Time.time - bow.drawStartTime >= bow.drawTime)
     {
         bow.bowReady = true;
+        
+
+        animationController.BowReady();
 
         Debug.Log("Bow Ready");
     }
@@ -699,6 +690,9 @@ private void UpdateGun()
 
     gun.currentAmmo--;
 
+    // Play the gun firing animation ONLY when a bullet is fired
+    animationController.FireGun();
+
     GameObject bullet =
         Instantiate(
             bulletPrefab,
@@ -717,5 +711,16 @@ private void UpdateGun()
         gun.currentAmmo +
         "/" +
         gun.magazineSize);
+}
+public bool IsAttackingAnimation { get; private set; }
+
+public void BeginAttackRotation()
+{
+    IsAttackingAnimation = true;
+}
+
+public void EndAttackRotation()
+{
+    IsAttackingAnimation = false;
 }
 }

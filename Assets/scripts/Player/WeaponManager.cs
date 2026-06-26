@@ -5,6 +5,8 @@ public class WeaponManager : MonoBehaviour
     public Weapon currentMeleeWeapon = null;
     public Weapon currentRangedWeapon = null;
 
+    private PlayerAnimationController animationController;
+
     private Sword sword;
     private Hammer hammer;
     private Trident trident;
@@ -31,6 +33,13 @@ public class WeaponManager : MonoBehaviour
 
         currentMeleeWeapon = sword;
         currentRangedWeapon = bow;
+
+        animationController =
+            FindFirstObjectByType<PlayerAnimationController>();
+
+        animationController.UpdateWeapon(
+            currentMeleeWeapon.weaponID,
+            currentRangedWeapon.weaponID);
     }
 
     public void EquipWeapon(
@@ -73,6 +82,10 @@ public class WeaponManager : MonoBehaviour
                 break;
         }
 
+        animationController.UpdateWeapon(
+            currentMeleeWeapon.weaponID,
+            currentRangedWeapon.weaponID);
+
         Debug.Log(
             "Melee: " +
             currentMeleeWeapon.weaponID +
@@ -105,6 +118,14 @@ public class WeaponManager : MonoBehaviour
                 currentMeleeWeapon = returningShield;
                 break;
         }
+
+        animationController.UpdateWeapon(
+            currentMeleeWeapon.weaponID,
+            currentRangedWeapon.weaponID);
+
+        Debug.Log(
+            "Melee Equipped: " +
+            currentMeleeWeapon.weaponID);
     }
 
     public void SetRangedWeapon(
@@ -132,5 +153,13 @@ public class WeaponManager : MonoBehaviour
                 currentRangedWeapon = returningShield;
                 break;
         }
+
+        animationController.UpdateWeapon(
+            currentMeleeWeapon.weaponID,
+            currentRangedWeapon.weaponID);
+
+        Debug.Log(
+            "Ranged Equipped: " +
+            currentRangedWeapon.weaponID);
     }
 }

@@ -3,15 +3,30 @@ using UnityEngine.InputSystem;
 
 public class MouseAim : MonoBehaviour
 {
+    [Header("References")]
+    [SerializeField] private PlayerCombat playerCombat;
+
     private Camera cam;
+    private Quaternion defaultRotation;
 
     private void Start()
     {
         cam = Camera.main;
+        defaultRotation = transform.rotation;
+
+        if (playerCombat == null)
+            playerCombat = GetComponentInParent<PlayerCombat>();
     }
 
     private void Update()
     {
+        // Return to the starting orientation whenever we're not attacking.
+        if (playerCombat != null && !playerCombat.IsAttackingAnimation)
+        {
+            transform.rotation = defaultRotation;
+            return;
+        }
+
         Vector3 mousePos =
             cam.ScreenToWorldPoint(
                 Mouse.current.position.ReadValue());

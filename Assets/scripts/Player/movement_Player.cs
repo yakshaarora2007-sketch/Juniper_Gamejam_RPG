@@ -10,18 +10,45 @@ public class Movement : MonoBehaviour
     private Rigidbody2D rb;
     private Vector2 moveInput;
 
+    private PlayerAnimationController animationController;
+
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        animationController =
+            GetComponent<PlayerAnimationController>();
+
+        animationController.UpdateMovement(
+            rb.linearVelocity.magnitude);
     }
 
     private void FixedUpdate()
+<<<<<<< HEAD
 {
            rb.linearVelocity = moveInput * moveSpeed;
+=======
+    {
+        
+
+    rb.linearVelocity = moveInput * moveSpeed;
+
+    Debug.Log("Velocity = " + rb.linearVelocity);
+    Debug.Log("Magnitude = " + rb.linearVelocity.magnitude);
+
+    animationController.UpdateMovement(rb.linearVelocity.magnitude);
+
+    }
+>>>>>>> yaksha
 
 }
     public void Move(InputAction.CallbackContext context)
     {
-        moveInput = context.ReadValue<Vector2>();
+  
+
+    moveInput = context.ReadValue<Vector2>();
+
+    Debug.Log("Input = " + moveInput);
+
     }
 }

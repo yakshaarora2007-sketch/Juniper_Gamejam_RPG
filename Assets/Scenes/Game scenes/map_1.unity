@@ -150,6 +150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c632d2a3bd4ce51418bd77b75dfeb1ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  wheelManager: {fileID: 0}
 --- !u!58 &17178925
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -639,6 +640,18 @@ PrefabInstance:
       propertyPath: timerText
       value: 
       objectReference: {fileID: 1476829742}
+    - target: {fileID: 4396961291626476406, guid: 25e7de1e05a178e44bba46243ead7e01, type: 3}
+      propertyPath: wheelPieces.Array.data[0].Amount
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396961291626476406, guid: 25e7de1e05a178e44bba46243ead7e01, type: 3}
+      propertyPath: wheelPieces.Array.data[1].Amount
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396961291626476406, guid: 25e7de1e05a178e44bba46243ead7e01, type: 3}
+      propertyPath: wheelPieces.Array.data[2].Amount
+      value: 30
+      objectReference: {fileID: 0}
     - target: {fileID: 4579826152914627802, guid: 25e7de1e05a178e44bba46243ead7e01, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.75
@@ -1222,9 +1235,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WaveManager
   wave1: {fileID: 1314680031}
   wave2: {fileID: 485873096}
-  wave1PowerUpPrefab: {fileID: 785600498}
-  wave2PowerUpPrefab: {fileID: 17178923}
-  powerupSpawn: {fileID: 1656308601}
 --- !u!1001 &343588711
 PrefabInstance:
   m_ObjectHideFlags: 0

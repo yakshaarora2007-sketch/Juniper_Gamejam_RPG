@@ -11,7 +11,9 @@ public class Arrow : MonoBehaviour
     }
 private void OnTriggerEnter2D(Collider2D other)
 {
-    Debug.Log("Arrow hit: " + other.name);
+    Debug.Log("Arrow hit: " + other.name +
+              " | Layer: " +
+              LayerMask.LayerToName(other.gameObject.layer));
 
     Combat_enemy enemy =
         other.GetComponentInParent<Combat_enemy>();
@@ -20,10 +22,6 @@ private void OnTriggerEnter2D(Collider2D other)
     {
         Debug.Log("Enemy Found");
         enemy.TakeDamage(arrowDamage);
-    }
-    else
-    {
-        Debug.Log("Enemy NOT Found");
     }
 
     Destroy(gameObject);

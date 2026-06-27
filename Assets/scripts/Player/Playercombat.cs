@@ -206,11 +206,21 @@ if (context.canceled)
 
     animationController.ReleaseBow();
 
-    GameObject arrow =
-        Instantiate(
-            arrowPrefab,
-            firePoint.position,
-            firePoint.rotation);}
+GameObject arrow =
+    Instantiate(
+        arrowPrefab,
+        firePoint.position,
+        firePoint.rotation);
+
+Rigidbody2D rb =
+    arrow.GetComponent<Rigidbody2D>();
+
+rb.linearVelocity =
+    -firePoint.up *
+    bow.projectileSpeed;
+
+Debug.Log("Arrow Spawned");
+}
 }
 private void HammerAttack()
 {
@@ -556,6 +566,8 @@ private void Die()
         input.enabled = false;
 
     enabled = false;
+
+FindObjectOfType<GameOver>().ShowGameOver();
 }
     private void OnDrawGizmosSelected()
     {

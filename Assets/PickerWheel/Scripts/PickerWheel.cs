@@ -287,5 +287,10 @@ Vector2 position =
                     0,
                     -(index * pieceAngle));
         }
+        public void RefreshWheel()
+{
+    GenerateWheel();
+}   
     }
+    
 }

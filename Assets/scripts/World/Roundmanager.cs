@@ -6,7 +6,7 @@ public class RoundManager : MonoBehaviour
 {
     public static RoundManager Instance;
 
-    public static bool RoundRunning = false;
+    public static bool RoundRunning = true;
 
     [Header("Countdown")]
     [SerializeField] private GameObject countdownPanel;
@@ -19,6 +19,7 @@ public class RoundManager : MonoBehaviour
     // [SerializeField] private float roundDuration = 120f;
 
     private float currentTime;
+    private bool timerStarted = false;
 
     private void Awake()
     {
@@ -31,10 +32,13 @@ public class RoundManager : MonoBehaviour
         }
 
         RoundRunning = false;
+        timerStarted = false;
     }
 
     private void Start()
     {
+        currentTime = 0f;
+
         if (countdownPanel != null)
             countdownPanel.SetActive(false);
 
@@ -48,92 +52,79 @@ public class RoundManager : MonoBehaviour
     public void StartCountdown()
     {
         StopAllCoroutines();
+
+        RoundRunning = false;
+        timerStarted = false;
+        currentTime = 0f;
+
         StartCoroutine(CountdownRoutine());
     }
 
-  private IEnumerator CountdownRoutine()
-{
-    RoundRunning = false;
-
-    currentTime = 0f;
-
-    if (countdownPanel != null)
+    private IEnumerator CountdownRoutine()
+    {
         countdownPanel.SetActive(true);
 
-    countdownText.text = "3";
-    yield return new WaitForSeconds(1f);
+        countdownText.text = "3";
+        yield return new WaitForSeconds(1f);
 
-    countdownText.text = "2";
-    yield return new WaitForSeconds(1f);
+        countdownText.text = "2";
+        yield return new WaitForSeconds(1f);
 
-    countdownText.text = "1";
-    yield return new WaitForSeconds(1f);
+        countdownText.text = "1";
+        yield return new WaitForSeconds(1f);
 
-    // Hide countdown immediately after "1"
-    countdownPanel.SetActive(false);
+        countdownPanel.SetActive(false);
 
-    // NOW start the round
-    currentTime = 0f;
-    RoundRunning = true;
-
-    if (timerText != null)
-    {
-        timerText.text = "00:00";
-        timerText.gameObject.SetActive(true);
-    }
-}
-    private void Update()
-    {
-        if (!RoundRunning)
-            return;
-
-        // ---------- CURRENT LEVEL ----------
-        // Count UP timer
-        if (RoundRunning)
-{
-    currentTime += Time.deltaTime;
-}
-
-        // ---------- FUTURE LEVELS ----------
-        // Uncomment these lines and comment the line above
-        //
-        // currentTime -= Time.deltaTime;
-        //
-        // if(currentTime <= 0f)
-        // {
-        //     currentTime = 0f;
-        //     EndRound();
-        // }
+        currentTime = 0f;
 
         if (timerText != null)
         {
-            int minutes =
-                Mathf.FloorToInt(currentTime / 60f);
-
-            int seconds =
-                Mathf.FloorToInt(currentTime % 60f);
-
-            timerText.text =
-                string.Format(
-                    "{0:00}:{1:00}",
-                    minutes,
-                    seconds);
+            timerText.text = "00:00";
+            timerText.gameObject.SetActive(true);
         }
+
+        timerStarted = true;
+        RoundRunning = true;
     }
+
+  private int displayedSecond = -1;
+
+private void Update()
+{
+    if (!timerStarted)
+        return;
+
+    if (!RoundManager.RoundRunning)
+        return;
+
+    currentTime += Time.deltaTime;
+
+    int currentSecond = Mathf.FloorToInt(currentTime);
+
+    // Only update the UI when the displayed second changes
+    if (currentSecond == displayedSecond)
+        return;
+
+    displayedSecond = currentSecond;
+
+    if (timerText != null)
+    {
+        int minutes = currentSecond / 60;
+        int seconds = currentSecond % 60;
+
+        timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+    }
+}
 
     public void EndRound()
     {
         RoundRunning = false;
-
-        Debug.Log("ROUND OVER");
+        timerStarted = false;
 
         if (timerText != null)
             timerText.gameObject.SetActive(false);
 
-        // Future:
-        // Spin wheels again
-        // Show score
-        // Load next level
+        Debug.Log("ROUND OVER");
     }
 
     public void PauseRound()

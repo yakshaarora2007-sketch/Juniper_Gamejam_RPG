@@ -30,10 +30,15 @@ public class WeaponWheelManager : MonoBehaviour
     StartMeleeWheel();
     }
 
-    public void StartMeleeWheel()
-    {
-        meleeWheel.Spin();
-    }
+   public void StartMeleeWheel()
+{
+    RoundManager.RoundRunning = false;
+
+    meleeWheel.gameObject.SetActive(true);
+    rangedWheel.gameObject.SetActive(false);
+
+    meleeWheel.Spin();
+}
 
     private void OnMeleeSelected(
         WheelPiece piece)
@@ -68,7 +73,9 @@ public class WeaponWheelManager : MonoBehaviour
         EquipWeapons();
          
          rangedWheel.gameObject.SetActive(false);
-         RoundManager.Instance.StartCountdown();
+         
+RoundManager.Instance.StartCountdown();
+         
     }
 
     private void EquipWeapons()
@@ -158,4 +165,8 @@ public class WeaponWheelManager : MonoBehaviour
 
         return WeaponID.Sword;
     }
+ public void StartWeaponSelection()
+{
+    StartMeleeWheel();
+}
 }

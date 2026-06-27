@@ -96,6 +96,8 @@ public class Combat_enemy : MonoBehaviour
     private void Die()
     {
         Debug.Log(gameObject.name + " Died");
+        WaveManager.Instance.EnemyKilled();
         Destroy(gameObject);
+        
     }
 }

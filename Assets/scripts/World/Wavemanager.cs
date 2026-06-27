@@ -7,9 +7,9 @@ public class WaveManager : MonoBehaviour
     [SerializeField] private GameObject wave1;
     [SerializeField] private GameObject wave2;
 
-    [SerializeField] private GameObject wave1PowerUpPrefab;
-[SerializeField] private GameObject wave2PowerUpPrefab;
-    [SerializeField] private Transform powerupSpawn;
+  
+    private WeaponWheelManager wheelManager;
+private UpgradeMenuUI upgradeMenu;
 
     private int currentWave = 1;
 
@@ -22,37 +22,48 @@ public class WaveManager : MonoBehaviour
     {
         wave1.SetActive(true);
         wave2.SetActive(false);
+        
     }
 
-    public void EnemyKilled()
-    {
-        if (EnemiesRemaining() == 0)
+   public void EnemyKilled()
 {
+    int remaining = EnemiesRemaining() - 1;
+
+    Debug.Log("Enemies Remaining = " + remaining);
+
+    if (remaining > 0)
+        return;
+
     if (currentWave == 1)
     {
-        Instantiate(
-            wave1PowerUpPrefab,
-            powerupSpawn.position,
-            Quaternion.identity);
+        Debug.Log("Wave 1 Cleared");
+
+        currentWave = 2;
+
+        wave2.SetActive(true);
+
+        RoundManager.RoundRunning = false;
+
+        Object.FindFirstObjectByType<WeaponWheelManager>()
+    .StartWeaponSelection();
     }
     else
     {
-        Instantiate(
-            wave2PowerUpPrefab,
-            powerupSpawn.position,
-            Quaternion.identity);
+        Debug.Log("Level Complete");
+
+        RoundManager.Instance.EndRound();
+
+        Object.FindFirstObjectByType<UpgradeMenuUI>()
+    .OpenMenu();
     }
 }
-    }
+   int EnemiesRemaining()
+{
+    GameObject wave =
+        currentWave == 1 ? wave1 : wave2;
 
-    int EnemiesRemaining()
-    {
-        GameObject wave =
-            currentWave == 1 ? wave1 : wave2;
-
-        return wave.GetComponentsInChildren<navmesh_enemy>().Length;
-    }
-
+    return wave.GetComponentsInChildren<navmesh_enemy>().Length;
+}
     public void StartWave2()
     {
         currentWave = 2;

@@ -61,22 +61,17 @@ public class WeaponWheelManager : MonoBehaviour
         rangedWheel.Spin();
     }
 
-    private void OnRangedSelected(
-        WheelPiece piece)
-    {
-        selectedRanged = piece;
+   private void OnRangedSelected(WheelPiece piece)
+{
+    selectedRanged = piece;
 
-        Debug.Log(
-            "Ranged Selected: " +
-            piece.Label);
+    EquipWeapons();
 
-        EquipWeapons();
-         
-         rangedWheel.gameObject.SetActive(false);
-         
-RoundManager.Instance.StartCountdown();
-         
-    }
+    meleeWheel.gameObject.SetActive(false);
+    rangedWheel.gameObject.SetActive(false);
+
+    RoundManager.Instance.StartCountdown();
+}
 
     private void EquipWeapons()
     {
@@ -165,8 +160,13 @@ RoundManager.Instance.StartCountdown();
 
         return WeaponID.Sword;
     }
- public void StartWeaponSelection()
+public void StartWeaponSelection()
 {
+    RoundManager.RoundRunning = false;
+
+    meleeWheel.gameObject.SetActive(true);
+    rangedWheel.gameObject.SetActive(false);
+
     StartMeleeWheel();
 }
 }

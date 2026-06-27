@@ -441,6 +441,11 @@ private void ThrowSpear()
         return;
 
     spear.currentSpears--;
+    weaponManager
+    .GetWeaponUI()
+    .UpdateAmmo(
+        spear.currentSpears,
+        spear.maxSpears);
 
     Debug.Log(
         "Spears Left = " +
@@ -670,6 +675,11 @@ private IEnumerator ReloadGun(
 
     gun.currentAmmo =
         gun.magazineSize;
+        weaponManager
+    .GetWeaponUI()
+    .UpdateAmmo(
+        gun.currentAmmo,
+        gun.magazineSize);
 
     gun.isReloading = false;
 
@@ -700,6 +710,11 @@ private void UpdateGun()
         Time.time + gun.fireRate;
 
     gun.currentAmmo--;
+    weaponManager
+    .GetWeaponUI()
+    .UpdateAmmo(
+        gun.currentAmmo,
+        gun.magazineSize);
 
     // Play the gun firing animation ONLY when a bullet is fired
     animationController.FireGun();
@@ -709,6 +724,9 @@ private void UpdateGun()
             bulletPrefab,
             firePoint.position,
             firePoint.rotation);
+            weaponManager
+    .GetWeaponUI()
+    .UpdateAmmo(-1, -1);
 
     Rigidbody2D rb =
         bullet.GetComponent<Rigidbody2D>();

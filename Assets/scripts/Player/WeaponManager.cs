@@ -6,6 +6,7 @@ public class WeaponManager : MonoBehaviour
     public Weapon currentRangedWeapon = null;
 
     private PlayerAnimationController animationController;
+    private WeaponUI weaponUI;
 
     private Sword sword;
     private Hammer hammer;
@@ -37,13 +38,21 @@ public class WeaponManager : MonoBehaviour
         animationController =
             FindFirstObjectByType<PlayerAnimationController>();
 
+        weaponUI =
+            FindFirstObjectByType<WeaponUI>();
+
         animationController.UpdateWeapon(
             currentMeleeWeapon.weaponID,
             currentRangedWeapon.weaponID);
+
+        weaponUI.SetMeleeWeapon(
+            currentMeleeWeapon.weaponID);
+
+        weaponUI.SetRangedWeapon(
+            currentRangedWeapon.weaponID);
     }
 
-    public void EquipWeapon(
-        WeaponID weaponID)
+    public void EquipWeapon(WeaponID weaponID)
     {
         switch (weaponID)
         {
@@ -84,6 +93,12 @@ public class WeaponManager : MonoBehaviour
 
         animationController.UpdateWeapon(
             currentMeleeWeapon.weaponID,
+            currentRangedWeapon.weaponID);
+
+        weaponUI.SetMeleeWeapon(
+            currentMeleeWeapon.weaponID);
+
+        weaponUI.SetRangedWeapon(
             currentRangedWeapon.weaponID);
 
         Debug.Log(
@@ -93,8 +108,7 @@ public class WeaponManager : MonoBehaviour
             currentRangedWeapon.weaponID);
     }
 
-    public void SetMeleeWeapon(
-        WeaponID weaponID)
+    public void SetMeleeWeapon(WeaponID weaponID)
     {
         switch (weaponID)
         {
@@ -123,13 +137,15 @@ public class WeaponManager : MonoBehaviour
             currentMeleeWeapon.weaponID,
             currentRangedWeapon.weaponID);
 
+        weaponUI.SetMeleeWeapon(
+            currentMeleeWeapon.weaponID);
+
         Debug.Log(
             "Melee Equipped: " +
             currentMeleeWeapon.weaponID);
     }
 
-    public void SetRangedWeapon(
-        WeaponID weaponID)
+    public void SetRangedWeapon(WeaponID weaponID)
     {
         switch (weaponID)
         {
@@ -158,8 +174,41 @@ public class WeaponManager : MonoBehaviour
             currentMeleeWeapon.weaponID,
             currentRangedWeapon.weaponID);
 
+        weaponUI.SetRangedWeapon(
+            currentRangedWeapon.weaponID);
+            switch (currentRangedWeapon.weaponID)
+{
+    case WeaponID.Bow:
+        weaponUI.UpdateAmmo(-1, -1);
+        break;
+
+    case WeaponID.Gun:
+    {
+        Gun gun = currentRangedWeapon as Gun;
+
+        weaponUI.UpdateAmmo(
+            gun.currentAmmo,
+            gun.magazineSize);
+        break;
+    }
+
+    case WeaponID.Spear:
+    {
+        Spear spear = currentRangedWeapon as Spear;
+
+        weaponUI.UpdateAmmo(
+            spear.currentSpears,
+            spear.maxSpears);
+        break;
+    }
+}
+
         Debug.Log(
             "Ranged Equipped: " +
             currentRangedWeapon.weaponID);
     }
+    public WeaponUI GetWeaponUI()
+{
+    return weaponUI;
+}
 }

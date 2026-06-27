@@ -51,36 +51,37 @@ public class RoundManager : MonoBehaviour
         StartCoroutine(CountdownRoutine());
     }
 
-    private IEnumerator CountdownRoutine()
+  private IEnumerator CountdownRoutine()
+{
+    RoundRunning = false;
+
+    currentTime = 0f;
+
+    if (countdownPanel != null)
+        countdownPanel.SetActive(true);
+
+    countdownText.text = "3";
+    yield return new WaitForSeconds(1f);
+
+    countdownText.text = "2";
+    yield return new WaitForSeconds(1f);
+
+    countdownText.text = "1";
+    yield return new WaitForSeconds(1f);
+
+    // Hide countdown immediately after "1"
+    countdownPanel.SetActive(false);
+
+    // NOW start the round
+    currentTime = 0f;
+    RoundRunning = true;
+
+    if (timerText != null)
     {
-        RoundRunning = false;
-
-        currentTime = 0f;
-
-        if (countdownPanel != null)
-            countdownPanel.SetActive(true);
-
-        countdownText.text = "3";
-        yield return new WaitForSeconds(1f);
-
-        countdownText.text = "2";
-        yield return new WaitForSeconds(1f);
-
-        countdownText.text = "1";
-        yield return new WaitForSeconds(1f);
-
-        countdownText.text = "FIGHT!";
-        yield return new WaitForSeconds(0.75f);
-
-        if (countdownPanel != null)
-            countdownPanel.SetActive(false);
-
-        if (timerText != null)
-            timerText.gameObject.SetActive(true);
-
-        RoundRunning = true;
+        timerText.text = "00:00";
+        timerText.gameObject.SetActive(true);
     }
-
+}
     private void Update()
     {
         if (!RoundRunning)
@@ -88,7 +89,10 @@ public class RoundManager : MonoBehaviour
 
         // ---------- CURRENT LEVEL ----------
         // Count UP timer
-        currentTime += Time.deltaTime;
+        if (RoundRunning)
+{
+    currentTime += Time.deltaTime;
+}
 
         // ---------- FUTURE LEVELS ----------
         // Uncomment these lines and comment the line above

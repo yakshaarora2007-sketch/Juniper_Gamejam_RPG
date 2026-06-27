@@ -262,7 +262,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 640
   health: 0
-  maxhealth: 100
+  maxhealth: 1000
   healthbar: {fileID: 1495034518}
 --- !u!114 &130850204
 MonoBehaviour:
@@ -3831,11 +3831,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3696121861907120601, guid: 949d8fbdca69226439765a41be103160, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 7.79703
+      value: 6.58
       objectReference: {fileID: 0}
     - target: {fileID: 3696121861907120601, guid: 949d8fbdca69226439765a41be103160, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.28044
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 3696121861907120601, guid: 949d8fbdca69226439765a41be103160, type: 3}
       propertyPath: m_LocalPosition.z
@@ -4050,11 +4050,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6816623235208361843, guid: 9a2d220417d9ea34fa0fb4560b760a5c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -6.36
+      value: -7.53
       objectReference: {fileID: 0}
     - target: {fileID: 6816623235208361843, guid: 9a2d220417d9ea34fa0fb4560b760a5c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.7
+      value: -0.49
       objectReference: {fileID: 0}
     - target: {fileID: 6816623235208361843, guid: 9a2d220417d9ea34fa0fb4560b760a5c, type: 3}
       propertyPath: m_LocalPosition.z

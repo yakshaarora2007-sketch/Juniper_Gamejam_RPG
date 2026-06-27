@@ -26,6 +26,9 @@ MonoBehaviour:
   - m_enabled: 1
     m_path: Assets/Scenes/Game scenes/map_1.unity
     m_guid: 32939b6ada2569b47aa62e2c66ae6583
+  - m_enabled: 1
+    m_path: Assets/Scenes/Game scenes/map_2.unity
+    m_guid: 085bfb8d53e623642a10cda56aed26b0
   m_HasScriptingDefines: 0
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:

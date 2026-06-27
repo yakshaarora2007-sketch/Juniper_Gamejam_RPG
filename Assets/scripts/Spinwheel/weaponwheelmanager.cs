@@ -61,14 +61,21 @@ public class WeaponWheelManager : MonoBehaviour
         rangedWheel.Spin();
     }
 
-   private void OnRangedSelected(WheelPiece piece)
+private void OnRangedSelected(WheelPiece piece)
 {
     selectedRanged = piece;
 
+    Debug.Log(
+        "Ranged Selected: " +
+        piece.Label);
+
     EquipWeapons();
 
+    // Hide both wheels
     meleeWheel.gameObject.SetActive(false);
+    Debug.Log("Melee Wheel Hidden");
     rangedWheel.gameObject.SetActive(false);
+    Debug.Log("Ranged Wheel Hidden");
 
     RoundManager.Instance.StartCountdown();
 }

@@ -47,15 +47,14 @@ private UpgradeMenuUI upgradeMenu;
         Object.FindFirstObjectByType<WeaponWheelManager>()
     .StartWeaponSelection();
     }
-    else
-    {
-        Debug.Log("Level Complete");
+   else
+{
+    Debug.Log("Level Complete");
 
-        RoundManager.Instance.EndRound();
+    RoundManager.Instance.EndRound();
 
-        Object.FindFirstObjectByType<UpgradeMenuUI>()
-    .OpenMenu();
-    }
+    Object.FindFirstObjectByType<LevelManager>().ShowLevelComplete();
+}
 }
    int EnemiesRemaining()
 {

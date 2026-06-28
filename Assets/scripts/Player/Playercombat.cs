@@ -341,9 +341,9 @@ private void SpearSlash()
 
     Collider2D[] hitEnemies =
         Physics2D.OverlapCircleAll(
-    hammerPoint.position,
-    shield.bashRange,
-    enemyLayer);
+        hammerPoint.position,
+        shield.bashRange,
+        enemyLayer);
        if (shield.shieldOut)
 {
     Debug.Log(
@@ -502,7 +502,9 @@ private void ThrowShield()
         Instantiate(
             shieldPrefab,
             firePoint.position,
-            firePoint.rotation);
+            firePoint.rotation
+            );
+            projectile.transform.localScale = Vector3.one * 2f;
 
     ShieldProjectile shieldProjectile =
         projectile.GetComponent<ShieldProjectile>();
@@ -609,7 +611,7 @@ if (tridentRightPoint != null)
 
     Gizmos.DrawWireSphere(
         hammerPoint.position,
-        1.5f);
+        2.5f);
 }
     }
 

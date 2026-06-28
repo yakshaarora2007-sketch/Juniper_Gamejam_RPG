@@ -467,7 +467,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 640
   health: 0
-  maxhealth: 100
+  maxhealth: 150
   healthbar: {fileID: 0}
 --- !u!114 &5783729131641027812
 MonoBehaviour:

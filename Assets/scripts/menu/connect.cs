@@ -1,10 +1,12 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class LevelManager : MonoBehaviour
 {
     [SerializeField] private string nextSceneName;
     [SerializeField] private GameObject levelCompletePanel;
+    [SerializeField] private TMP_Text nextButtonText;  // drag the button text here
 
     private void Start()
     {
@@ -12,34 +14,24 @@ public class LevelManager : MonoBehaviour
             levelCompletePanel.SetActive(false);
     }
 
-    private void Update()
-    {
-        if (!RoundManager.RoundRunning) return;
-
-        // Check if all enemies are dead
-        if (FindObjectsOfType<Combat_enemy>().Length == 0)
-        {
-            RoundManager.Instance.EndRound();
-            LevelComplete();
-        }
-    }
-
-    private void LevelComplete()
+    public void ShowLevelComplete()
     {
         if (levelCompletePanel != null)
             levelCompletePanel.SetActive(true);
+
+        // Change button text if last level
+        if (nextButtonText != null)
+            nextButtonText.text = string.IsNullOrEmpty(nextSceneName) 
+                ? "Finish" 
+                : "Next Level";
     }
 
     public void NextLevelButton()
     {
+        Time.timeScale = 1f;
         if (string.IsNullOrEmpty(nextSceneName))
-        {
-            // No next scene = last level, go to win screen
-            SceneManager.LoadScene("WinScreen");
-        }
+            SceneManager.LoadScene(3);
         else
-        {
             SceneManager.LoadScene(nextSceneName);
-        }
     }
 }
